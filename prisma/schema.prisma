@@ -12,3 +12,263 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum ExposeRange {
+  PUBLIC //전채 공개
+  CLOSED //회사 공개
+  SECRET //비공개
+}
+
+model User {
+  id            String          @id
+  updatedAt     DateTime        @updatedAt
+  question      Question[]
+  profile       Profile?
+  resume        Resume?
+  portfolio     Portfolio?
+  likeResume    LikeResume[]
+  likePortfolio LikePortfolio[]
+}
+
+// model CorporateMember {
+//   id String @id
+//   password String
+//   company String
+//   recruitment Recruitment[]
+// }
+
+model Admin {
+  id       String   @id
+  password String
+  answer   Answer[]
+  notice   Notice[]
+}
+
+model Profile {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @id
+  name   String
+  phone  String @unique
+  email  String @unique
+}
+
+model Question {
+  id        Int         @id @default(autoincrement())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String
+  title     String
+  content   String
+  expose    ExposeRange @default(PUBLIC)
+  deletedAt DateTime    @updatedAt
+  answered  Boolean     @default(false)
+  answer    Answer?
+}
+
+model Answer {
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int      @unique
+  content    String
+  admin      Admin    @relation(fields: [adminId], references: [id])
+  adminId    String
+
+  @@id([questionId, adminId])
+}
+
+model Notice {
+  id          Int      @id @default(autoincrement())
+  admin       Admin    @relation(fields: [publisherId], references: [id])
+  publisherId String
+  title       String
+  content     String
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime
+}
+
+model Resume {
+  user             User               @relation(fields: [id], references: [id], onDelete: Cascade)
+  id               String             @id
+  likes            Int                @default(0)
+  title            String
+  expose           ExposeRange        @default(SECRET)
+  proposal         Int                @default(0)
+  resumeInfo       ResumeInfo?
+  introduce        Introduce[]
+  activity         Activity[]
+  certificate      Certificate[]
+  career           Career[]
+  site             Site[]
+  additionalResume AdditionalResume[]
+  liked            LikeResume[]
+}
+
+model ResumeInfo {
+  id           String  @id
+  resume       Resume  @relation(fields: [id], references: [id], onDelete: Cascade)
+  name         String
+  email        String
+  phone        String
+  address      String
+  profileImage String?
+}
+
+model Introduce {
+  id        Int    @id @default(autoincrement())
+  resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId  String
+  oneLine   String
+  introduce String
+}
+
+model Activity {
+  id        Int    @id @default(autoincrement())
+  resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId  String
+  title     String
+  content   String
+  startDate String
+  endDate   String
+}
+
+model Certificate {
+  id              Int     @id @default(autoincrement())
+  resume          Resume  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId        String
+  name            String
+  certificateDate String
+  issuer          String
+  score           String
+  content         String?
+}
+
+model Career {
+  id        Int    @id @default(autoincrement())
+  resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId  String
+  company   String
+  position  String
+  content   String
+  startDate String
+  endDate   String
+}
+
+model Site {
+  id       Int     @id @default(autoincrement())
+  resume   Resume  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId String
+  title    String
+  content  String?
+  url      String
+}
+
+model AdditionalResume {
+  id       Int    @id @default(autoincrement())
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId String
+  title    String
+  content  String
+}
+
+model LikeResume {
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+
+  @@id([userId, resumeId])
+}
+
+model Portfolio {
+  id      String          @id
+  user    User            @relation(fields: [id], references: [id], onDelete: Cascade)
+  project Project[]
+  expose  ExposeRange     @default(SECRET)
+  liked   LikePortfolio[]
+}
+
+model Project {
+  id                  Int                   @id @default(autoincrement())
+  portfolio           Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  portfolioId         String                @unique
+  additionalPortfolio AdditionalPortfolio[]
+  projectInfo         ProjectInfo?
+  contribution        Contribution[]
+  troubleShooting     TroubleShooting[]
+}
+
+model AdditionalPortfolio {
+  id        Int     @id @default(autoincrement())
+  project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  projectId String
+}
+
+model ProjectInfo {
+  project       Project       @relation(fields: [projectInfoId], references: [portfolioId], onDelete: Cascade)
+  projectInfoId String        @unique
+  title         String
+  content       String
+  startDate     String
+  endDate       String?
+  repImages     String?
+  team          Team[]
+  skill         Skill[]
+  projectSite   ProjectSite[]
+}
+
+model Contribution {
+  id           Int     @id @default(autoincrement())
+  project      Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  projectId    String
+  contribution String
+  content      String?
+}
+
+model TroubleShooting {
+  id        Int     @id @default(autoincrement())
+  project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  projectId String  @unique
+  trouble   String
+  content   String?
+}
+
+model Team {
+  id            Int         @id @default(autoincrement())
+  projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
+  projectInfoId String
+  role          String
+  headCount     Int?
+}
+
+model Skill {
+  id            Int         @id @default(autoincrement())
+  projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
+  projectInfoId String
+}
+
+model ProjectSite {
+  id            Int         @id @default(autoincrement())
+  projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
+  projectInfoId String
+}
+
+model LikePortfolio {
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  portfolioId String
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+
+  @@id([portfolioId, userId])
+}
+
+// model Recruitment {
+//   id String @id
+//   copporateMember CorporateMember @relation(fields: [publisherId], references: [id])
+//   publisherId String
+//   title String
+//   experienced String?
+//   salary String?
+//   task String?
+//   position String?
+//   required String?
+//   preferred String?
+//   deadline DateTime?
+// }
