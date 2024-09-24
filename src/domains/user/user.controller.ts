@@ -1,14 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Guard } from 'src/decorators/guard.decorator';
+import { UserSignUpByEmail } from './user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  @Guard('admin')
-  getSth() {
-    return 'hi';
+  @Post()
+  async createUserByEmail(@Body() data: UserSignUpByEmail) {
+    console.log('controller');
+    console.log(data);
+    const newUser = this.userService.signUpByEmail(data);
+
+    return newUser;
   }
 }
