@@ -2,12 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 
 import { validate } from 'class-validator';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { DUserSignUpByEmail } from './user.dto';
+import { BadRequestException } from '@nestjs/common';
 
 describe('UserService', () => {
   let service: UserService;
@@ -66,5 +66,23 @@ describe('UserService', () => {
     const user = await service.signUpByEmail(dto);
     expect(user).toBeDefined();
     expect(user.email).toBe(dto.email);
+  });
+
+  test('signUpByEmail: 사용자 생성 실패', async () => {
+    dto.email = 'jest1@email.com';
+    dto.password = 'pW12345@';
+
+    prismaMock.user.findFirst.mockResolvedValueOnce(null).mockResolvedValue({
+      id: 'existing-id',
+      email: dto.email,
+      updatedAt: new Date(),
+      password: 'existing-hashed-password',
+    });
+
+    await service.signUpByEmail(dto);
+
+    await expect(service.signUpByEmail(dto)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 });
