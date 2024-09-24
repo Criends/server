@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { UserSignUpByEmail } from './user.dto';
-import { PrismaModule } from '../../prisma/prisma.module';
 import { validate } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
 import { BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
@@ -57,12 +55,11 @@ describe('UserService', () => {
 
     prismaMock.user.findFirst.mockResolvedValue(null);
 
-    // 사용자 생성에 대한 Mock
     prismaMock.user.create.mockResolvedValue({
       id: 'some-id',
       email: dto.email,
       updatedAt: new Date(),
-      password: 'hashed-password', // 해시된 패스워드 대신 placeholder
+      password: 'hashed-password',
     });
 
     const user = await service.signUpByEmail(dto);
