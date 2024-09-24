@@ -1,5 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { User, UserSignUpByEmail } from './user.dto';
+import { IsEmail } from 'class-validator';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { DUserSignUpByEmail, User } from './user.dto';
 import { nanoid } from 'nanoid';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -8,7 +13,7 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async signUpByEmail(data: UserSignUpByEmail): Promise<User | null> {
+  async signUpByEmail(data: DUserSignUpByEmail): Promise<User> {
     const checkEmail = await this.getUserInfo(data.email);
     if (checkEmail)
       throw new BadRequestException('이미 존재하는 이메일입니다.');
@@ -23,7 +28,12 @@ export class UserService {
     return newUser;
   }
 
-  async getUserInfo(email: string): Promise<User | null> {
-    return await this.prismaService.user.findFirst({ where: { email: email } });
+  async getUserInfo(email: string): Promise<User> {
+    const user = await this.prismaService.user.findFirst({
+      where: { email: email },
+    });
+
+    if (!user) throw new NotFoundException('존재하지 않는 사용자입니다.');
+    return user;
   }
 }
