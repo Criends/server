@@ -15,5 +15,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
       useClass: RolesGuard,
     },
   ],
+  exports: [UserService],
 })
 export class UserModule {}

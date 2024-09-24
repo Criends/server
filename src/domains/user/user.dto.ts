@@ -1,5 +1,11 @@
 import { IsEmail, IsString, Length, Matches } from 'class-validator';
 
+export class User {
+  id: string;
+  email: string;
+  updatedAt: Date;
+  password: string;
+}
 export class UserSignUpByEmail {
   @IsString()
   @IsEmail()
