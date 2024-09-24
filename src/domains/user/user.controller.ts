@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserSignUpByEmail } from './user.dto';
+import { User, UserSignUpByEmail } from './user.dto';
 
 @Controller('user')
 export class UserController {
@@ -13,5 +13,12 @@ export class UserController {
     const newUser = this.userService.signUpByEmail(data);
 
     return newUser;
+  }
+
+  @Get()
+  async findUserByEmail(@Query('email') email: string): Promise<User | null> {
+    const foundUser = await this.userService.getUserInfo(email);
+
+    return foundUser;
   }
 }
