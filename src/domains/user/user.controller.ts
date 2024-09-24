@@ -16,7 +16,7 @@ export class UserController {
   }
 
   @Get()
-  async findUserByEmail(email: string): Promise<User | null> {
+  async findUserByEmail(@Query('email') email: string): Promise<User | null> {
     const foundUser = await this.userService.getUserInfo(email);
 
     return foundUser;

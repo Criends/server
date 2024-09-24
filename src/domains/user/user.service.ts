@@ -3,6 +3,7 @@ import { User, UserSignUpByEmail } from './user.dto';
 import { nanoid } from 'nanoid';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
