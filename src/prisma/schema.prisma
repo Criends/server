@@ -32,12 +32,12 @@ model User {
   likePortfolio LikePortfolio[]
 }
 
-// model CorporateMember {
-//   id String @id
-//   password String
-//   company String
-//   recruitment Recruitment[]
-// }
+model CorporateMember {
+  id String @id
+  password String
+  company String
+  recruitment Recruitment[]
+}
 
 model Admin {
   id       String   @id
@@ -261,16 +261,16 @@ model LikePortfolio {
   @@id([portfolioId, userId])
 }
 
-// model Recruitment {
-//   id String @id
-//   copporateMember CorporateMember @relation(fields: [publisherId], references: [id])
-//   publisherId String
-//   title String
-//   experienced String?
-//   salary String?
-//   task String?
-//   position String?
-//   required String?
-//   preferred String?
-//   deadline DateTime?
-// }
+model Recruitment {
+  id String @id
+  copporateMember CorporateMember @relation(fields: [publisherId], references: [id])
+  publisherId String
+  title String
+  experienced String?
+  salary String?
+  task String?
+  position String?
+  required String?
+  preferred String?
+  deadline DateTime?
+}

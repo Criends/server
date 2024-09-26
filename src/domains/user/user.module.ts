@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from 'src/guards/guard';
+import { RolesGuard } from 'src/guards/auth.guard';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [PrismaModule],
@@ -14,7 +15,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    JwtService,
   ],
-  exports: [UserService],
 })
 export class UserModule {}

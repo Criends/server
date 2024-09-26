@@ -1,5 +1,3 @@
-import { SetMetadata } from '@nestjs/common';
-import { AccountType } from 'src/types/account.type';
+import { Reflector } from '@nestjs/core';
 
-export const Guard = (accountType: AccountType) =>
-  SetMetadata('accountType', accountType);
+export const Guard = Reflector.createDecorator<string | string[]>();
