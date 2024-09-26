@@ -13,6 +13,6 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors();
-  app.listen(configService.get('PORT') || 3000);
+  app.listen(configService.get('PORT'));
 }
 bootstrap();

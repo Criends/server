@@ -8,7 +8,9 @@ export class UserController {
 
   @Post()
   async createUserByEmail(@Body() data: DUserSignUpByEmail) {
-    return this.userService.signUpByEmail(data);
+    const user = await this.userService.signUpByEmail(data);
+    return user.email;
+    // return await this.userService.signUpByEmail(data);
   }
 
   @Get(':id')

@@ -18,14 +18,9 @@ export class TransformInterceptor<T>
   ): Observable<TResponse<T>> {
     return next.handle().pipe(
       map((data) => {
-        if (
-          data &&
-          typeof data === 'object' &&
-          'success' in data &&
-          'result' in data &&
-          'message' in data
-        )
+        if (typeof data === 'object') {
           return data;
+        }
         return { success: true, data: data, message: null };
       }),
     );
