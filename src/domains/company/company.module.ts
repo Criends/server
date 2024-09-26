@@ -3,22 +3,11 @@ import { CompanyService } from './company.service';
 import { CompanyController } from './company.controller';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from 'src/guards/auth.guard';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [
-    ConfigModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        global: true,
-        secret: configService.get<string>('JWT_SECRET_KEY'),
-        signOptions: { expiresIn: '2h' },
-      }),
-      inject: [ConfigService],
-    }),
-  ],
+  imports: [ConfigModule],
   controllers: [CompanyController],
   providers: [
     CompanyService,
