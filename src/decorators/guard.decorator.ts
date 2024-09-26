@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { AccountEntity } from 'src/types/account.type';
+import { AccountType } from 'src/types/account.type';
 
-export const Guard = (accountType: AccountEntity) =>
+export const Guard = (accountType: AccountType) =>
   SetMetadata('accountType', accountType);

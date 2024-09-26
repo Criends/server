@@ -11,8 +11,8 @@ export class UserController {
     return await this.userService.signUpByEmail(data);
   }
 
-  @Get(':id')
-  async findUserByEmail(@Param('id') id: string) {
-    return await this.userService.getUser(id);
+  @Get()
+  async findUserByEmail(@Param('email') email: string) {
+    return await this.userService.getUserByEmail(email);
   }
 }
