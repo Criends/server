@@ -1,24 +1,18 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User, UserSignUpByEmail } from './user.dto';
+import { DUserSignUpByEmail } from './user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async createUserByEmail(@Body() data: UserSignUpByEmail) {
-    console.log('controller');
-    console.log(data);
-    const newUser = this.userService.signUpByEmail(data);
-
-    return newUser;
+  async createUserByEmail(@Body() data: DUserSignUpByEmail) {
+    return await this.userService.signUpByEmail(data);
   }
 
-  @Get()
-  async findUserByEmail(email: string): Promise<User | null> {
-    const foundUser = await this.userService.getUserInfo(email);
-
-    return foundUser;
+  @Get(':id')
+  async findUserByEmail(@Param('id') id: string) {
+    return await this.userService.getUser(id);
   }
 }

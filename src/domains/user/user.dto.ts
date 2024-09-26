@@ -6,7 +6,7 @@ export class User {
   updatedAt: Date;
   password: string;
 }
-export class UserSignUpByEmail {
+export class DUserSignUpByEmail {
   @IsString()
   @IsEmail()
   email: string;
