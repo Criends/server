@@ -14,16 +14,18 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async signIn(dto: DUserSignInByEmail): Promise<{ access_token: string }> {
+  async signIn(
+    dto: DUserSignInByEmail,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userService.getUserByEmail(dto.email);
     const decoded = bcrypt.compare(dto.password, user.password);
     if (!decoded)
       throw new BadRequestException('이메일 또는 비밀번호가 다릅니다.');
 
-    return {
-      ...(await this.generateAccessToken(user, 'user')),
-      ...(await this.generateRefreshToken(user, 'user')),
-    };
+    const accessToken = await this.generateAccessToken(user, 'user');
+    const refreshToken = await this.generateRefreshToken(user, 'user');
+
+    return { ...accessToken, ...refreshToken };
   }
 
   async generateAccessToken(
@@ -38,7 +40,7 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_SECRET_KEY'),
-        expiresIn: '2m',
+        expiresIn: '5m',
       }),
     };
   }
@@ -55,25 +57,35 @@ export class AuthService {
     return {
       refresh_token: await this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET_KEY'),
-        expiresIn: '1h',
+        expiresIn: '7d',
       }),
     };
   }
 
   async refreshAccessToken(
-    refreshToken: string,
-  ): Promise<{ access_token: string }> {
+    _refreshToken: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     try {
-      const payload = await this.jwtService.verifyAsync(refreshToken, {
+      const payload = await this.jwtService.verifyAsync(_refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET_KEY'),
       });
 
-      return this.generateAccessToken(
+      const accessToken = await this.generateAccessToken(
         { id: payload.sub, email: payload.email } as User,
         payload.accountType,
       );
+
+      const refreshToken = await this.generateRefreshToken(
+        { id: payload.sub, email: payload.email } as User,
+        payload.accountType,
+      );
+
+      return {
+        access_token: accessToken.access_token,
+        refresh_token: refreshToken.refresh_token,
+      };
     } catch (e) {
-      throw new BadRequestException('유효하지 않은 리프레시 토큰입니다.');
+      throw new BadRequestException(e, '유효하지 않은 리프레시 토큰입니다.');
     }
   }
 }

@@ -11,4 +11,14 @@ export class AuthController {
   signIn(@Body() dto: DUserSignInByEmail) {
     return this.authService.signIn(dto);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh')
+  async refreshAccessToken(@Body('refresh_token') refreshToken: string) {
+    const tokens = await this.authService.refreshAccessToken(refreshToken);
+    return {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || null,
+    };
+  }
 }
