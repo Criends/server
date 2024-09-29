@@ -1,0 +1,98 @@
+import { ExposeRange } from '@prisma/client';
+import { IsEnum, IsNumber } from 'class-validator';
+
+export enum SortResume {
+  'UPDATED_AT',
+  'PROPOSAL',
+  'LIKES',
+}
+
+export class DResume {
+  id: string;
+  likes: number;
+  title: string;
+  expose: ExposeRange;
+  proposal: number;
+  updatedAt: Date;
+  resumeInfo: DResumeInfo;
+  introduce?: DIntroduce[];
+  activity?: DActivity[];
+  certificate?: DCertificate[];
+  career?: DCareer[];
+  site?: DSite[];
+  additionalResume?: DAdditionalResume[];
+}
+
+export class DResumeInfo {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  profileImage?: string;
+}
+
+export class DIntroduce {
+  id: number;
+  resumeId: string;
+  oneLine: string;
+  introduce: string;
+}
+
+export class DActivity {
+  id: number;
+  resumeId: string;
+  title: string;
+  content: string;
+  startDate: string;
+  endDate: string;
+}
+
+export class DCertificate {
+  id: number;
+  resumeId: string;
+  name: string;
+  certificateDate: string;
+  issuer: string;
+  score: string;
+  content?: string;
+}
+
+export class DCareer {
+  id: number;
+  resumeId: string;
+  company: string;
+  position: string;
+  content: string;
+  startDate: string;
+  endDate: string;
+}
+
+export class DSite {
+  id: number;
+  resumeId: string;
+  title: string;
+  content?: string;
+  url: string;
+}
+
+export class DAdditionalResume {
+  id: number;
+  resumeId: string;
+  title: string;
+  content: string;
+}
+
+export class DGetAllResumes {
+  @IsEnum(SortResume)
+  sort: SortResume;
+
+  // @IsNumber()
+  // page: number;
+
+  // @IsNumber()
+  // count: number;
+
+  @IsEnum(ExposeRange)
+  expose: ExposeRange;
+}

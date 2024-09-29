@@ -8,6 +8,7 @@ import { CompanyModule } from './domains/company/company.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './domains/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ResumeModule } from './domains/resume/resume.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { JwtModule } from '@nestjs/jwt';
       }),
       inject: [ConfigService],
     }),
+    ResumeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
