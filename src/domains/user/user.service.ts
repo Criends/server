@@ -30,12 +30,12 @@ export class UserService {
     return newUser;
   }
 
-  async getUser(id: string): Promise<User> {
-    const user = await this.prismaService.user.findFirst({
-      where: { id: id },
+  async getUserByEmail(email: string) {
+    const checkEmail = await this.prismaService.user.findFirst({
+      where: { email: email },
     });
 
-    if (!user) throw new NotFoundException('존재하지 않는 사용자입니다.');
-    return user;
+    if (!checkEmail) throw new NotFoundException('존재하지 않는 사용자입니다.');
+    return checkEmail;
   }
 }

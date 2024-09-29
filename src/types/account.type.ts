@@ -1,1 +1,1 @@
-export type AccountEntity = 'user' | 'admin' | 'company';
+export type AccountType = 'user' | 'admin' | 'company';
