@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ResumeService } from './resume.service';
 import {
   DActivity,
@@ -7,6 +15,7 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DResume,
   DResumeInfo,
 } from './resume.dto';
 import { Guard } from 'src/decorators/guard.decorator';
@@ -74,5 +83,11 @@ export class ResumeController {
     @DAccount('user') user: User,
   ) {
     return await this.resumeService.editAdditionalResume(dto, user.id);
+  }
+
+  @Guard('user')
+  @Delete('item')
+  async deleteItem(@Body('id') id: string) {
+    await this.resumeService.deleteItem(id);
   }
 }

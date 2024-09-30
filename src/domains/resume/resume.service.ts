@@ -7,10 +7,12 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DResume,
   DResumeInfo,
   DSite,
   SortResume,
 } from './resume.dto';
+import { User } from '../user/user.dto';
 
 @Injectable()
 export class ResumeService {
@@ -64,6 +66,16 @@ export class ResumeService {
     return resumes;
   }
 
+  async deleteItem(itemId: string) {
+    if (itemId.startsWith('introduce')) this.deleteIntroduce(itemId);
+    else if (itemId.startsWith('activity')) this.deleteActivity(itemId);
+    else if (itemId.startsWith('certificate')) this.deleteCertificate(itemId);
+    else if (itemId.startsWith('career')) this.deleteCareer(itemId);
+    else if (itemId.startsWith('site')) this.deleteSite(itemId);
+    else if (itemId.startsWith('additional'))
+      this.deleteAdditionalResume(itemId);
+  }
+
   // 이력서 개인정보 추가
   async editResumeInfo(dto: DResumeInfo, userId: string) {
     const existing = await this.prismaService.resumeInfo.findUnique({
@@ -107,6 +119,18 @@ export class ResumeService {
     );
   }
 
+  async deleteIntroduce(id: string) {
+    const introduce = await this.prismaService.introduce.findFirst({
+      where: { id: id },
+    });
+
+    if (!introduce) throw new NotFoundException('존재하지 않는 항목입니다.');
+
+    await this.prismaService.introduce.delete({
+      where: { id: id },
+    });
+  }
+
   // 이력서 활동 추가
   async editActivity(dto: DActivity[], userId: string) {
     const existing = await this.prismaService.activity.findUnique({
@@ -134,6 +158,19 @@ export class ResumeService {
         }),
       ),
     );
+  }
+
+  // 이력서 활동 삭제
+  async deleteActivity(id: string) {
+    const activity = await this.prismaService.activity.findFirst({
+      where: { id: id },
+    });
+
+    if (!activity) throw new NotFoundException('존재하지 않는 항목입니다.');
+
+    await this.prismaService.activity.delete({
+      where: { id: id },
+    });
   }
 
   // 이력서 자격증 추가
@@ -167,6 +204,19 @@ export class ResumeService {
     );
   }
 
+  // 이력서 자격증 삭제
+  async deleteCertificate(id: string) {
+    const certificate = await this.prismaService.certificate.findFirst({
+      where: { id: id },
+    });
+
+    if (!certificate) throw new NotFoundException('존재하지 않는 항목입니다.');
+
+    await this.prismaService.certificate.delete({
+      where: { id: id },
+    });
+  }
+
   // 이력서 경력 추가
   async editCareer(dto: DCareer[], userId: string) {
     const existing = await this.prismaService.career.findUnique({
@@ -198,6 +248,19 @@ export class ResumeService {
     );
   }
 
+  // 이력서 경력 삭제
+  async deleteCareer(id: string) {
+    const career = await this.prismaService.career.findFirst({
+      where: { id: id },
+    });
+
+    if (!career) throw new NotFoundException('존재하지 않는 항목입니다.');
+
+    await this.prismaService.career.delete({
+      where: { id: id },
+    });
+  }
+
   // 이력서 사이트 추가
   async editSite(dto: DSite[], userId: string) {
     const existing = await this.prismaService.site.findUnique({
@@ -225,6 +288,19 @@ export class ResumeService {
     );
   }
 
+  // 이력서 사이트 삭제
+  async deleteSite(id: string) {
+    const site = await this.prismaService.site.findFirst({
+      where: { id: id },
+    });
+
+    if (!site) throw new NotFoundException('존재하지 않는 항목입니다.');
+
+    await this.prismaService.site.delete({
+      where: { id: id },
+    });
+  }
+
   // 이력서 추가사항 추가
   async editAdditionalResume(dto: DAdditionalResume[], userId: string) {
     const existing = await this.prismaService.site.findUnique({
@@ -248,5 +324,20 @@ export class ResumeService {
         }),
       ),
     );
+  }
+
+  // 이력서 추가사항 삭제
+  async deleteAdditionalResume(id: string) {
+    const additionalResume =
+      await this.prismaService.additionalResume.findFirst({
+        where: { id: id },
+      });
+
+    if (!additionalResume)
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+
+    await this.prismaService.additionalResume.delete({
+      where: { id: id },
+    });
   }
 }
