@@ -90,10 +90,10 @@ model Notice {
 model Resume {
   user             User               @relation(fields: [id], references: [id], onDelete: Cascade)
   id               String             @id
-  likes            Int                @default(0)
-  title            String
+  likes            Int?                @default(0)
+  title            String?
   expose           ExposeRange        @default(SECRET)
-  proposal         Int                @default(0)
+  proposal         Int?                @default(0)
   updatedAt        DateTime
   resumeInfo       ResumeInfo?
   introduce        Introduce[]

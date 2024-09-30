@@ -15,6 +15,7 @@ import {
 @Injectable()
 export class ResumeService {
   constructor(private readonly prismaService: PrismaService) {}
+
   //단일 이력서 조회
   async getResume(id: string) {
     const resume = await this.prismaService.resume.findUnique({

@@ -10,11 +10,11 @@ export enum SortResume {
 export class DResume {
   id?: string;
   likes?: number;
-  title: string;
-  expose: ExposeRange;
+  title?: string;
+  expose?: ExposeRange;
   proposal?: number;
   updatedAt?: Date;
-  resumeInfo: DResumeInfo;
+  resumeInfo?: DResumeInfo;
   introduce?: DIntroduce[];
   activity?: DActivity[];
   certificate?: DCertificate[];
