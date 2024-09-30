@@ -1,22 +1,46 @@
 import { PrismaService } from './../../prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DGetAllResumes, DResume, SortResume } from './resume.dto';
+import {
+  DActivity,
+  DAdditionalResume,
+  DCareer,
+  DCertificate,
+  DGetAllResumes,
+  DIntroduce,
+  DResumeInfo,
+  DSite,
+  SortResume,
+} from './resume.dto';
 
 @Injectable()
 export class ResumeService {
   constructor(private readonly prismaService: PrismaService) {}
-
   //단일 이력서 조회
   async getResume(id: string) {
-    const resume = await this.prismaService.resume.findFirst({
-      where: { id: id },
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        likes: true,
+        proposal: true,
+        resumeInfo: true,
+        introduce: true,
+        activity: true,
+        certificate: true,
+        career: true,
+        site: true,
+        additionalResume: true,
+      },
     });
 
     if (!resume) throw new NotFoundException('이력서가 존재하지 않습니다.');
+
+    return resume;
   }
 
   //다수 이력서 조회
-  async getAllResumes(data: DGetAllResumes): Promise<DResume[] | null> {
+  async getAllResumes(data: DGetAllResumes) {
     let orderByField;
 
     switch (data.sort) {
@@ -30,25 +54,199 @@ export class ResumeService {
         orderByField = { proposal: 'desc' };
     }
 
-    const resumes: DResume[] = await this.prismaService.resume.findMany({
+    const resumes = await this.prismaService.resume.findMany({
       where: {
         expose: data.expose,
       },
       orderBy: orderByField,
-      include: {
-        resumeInfo: true,
-        introduce: true,
-        activity: true,
-        certificate: true,
-        career: true,
-        site: true,
-        additionalResume: true,
-      },
     });
 
     return resumes;
   }
-  //이력서 생성
-  //이력서 수정
-  //이력서 삭제
+
+  // 이력서 개인정보 추가
+  async editResumeInfo(dto: DResumeInfo, userId: string) {
+    const existing = await this.prismaService.resumeInfo.findUnique({
+      where: { id: userId },
+    });
+
+    return await this.prismaService.resumeInfo.update({
+      where: { id: userId },
+      data: {
+        name: dto.name || existing.name,
+        email: dto.email || existing.email,
+        phone: dto.phone || existing.phone,
+        address: dto.address || existing.address,
+        profileImage: dto.profileImage || existing.profileImage,
+      },
+    });
+  }
+
+  // 이력서 자기소개 추가
+  async editIntroduce(dto: DIntroduce[], userId: string) {
+    const existing = await this.prismaService.introduce.findUnique({
+      where: { id: userId },
+    });
+
+    return await Promise.all(
+      dto.map((value: DIntroduce, index: number) =>
+        this.prismaService.introduce.upsert({
+          where: { id: 'introduce' + index.toString() + userId },
+          create: {
+            id: 'introduce' + index.toString() + userId,
+            resumeId: userId,
+            oneLine: value.oneLine,
+            introduce: value.introduce,
+          },
+          update: {
+            oneLine: value.oneLine || existing.oneLine,
+            introduce: value.introduce || existing.introduce,
+          },
+        }),
+      ),
+    );
+  }
+
+  // 이력서 활동 추가
+  async editActivity(dto: DActivity[], userId: string) {
+    const existing = await this.prismaService.activity.findUnique({
+      where: { id: userId },
+    });
+
+    return await Promise.all(
+      dto.map((value: DActivity, index: number) =>
+        this.prismaService.activity.upsert({
+          where: { id: 'activity' + index.toString() + userId },
+          create: {
+            id: 'activity' + index.toString() + userId,
+            resumeId: userId,
+            title: value.title,
+            content: value.content,
+            startDate: value.startDate,
+            endDate: value.endDate,
+          },
+          update: {
+            title: value.title || existing.title,
+            content: value.content || existing.content,
+            startDate: value.startDate || existing.startDate,
+            endDate: value.endDate || existing.endDate,
+          },
+        }),
+      ),
+    );
+  }
+
+  // 이력서 자격증 추가
+  async editCertificate(dto: DCertificate[], userId: string) {
+    const existing = await this.prismaService.certificate.findUnique({
+      where: { id: userId },
+    });
+
+    await Promise.all(
+      dto.map((value: DCertificate, index: number) =>
+        this.prismaService.certificate.upsert({
+          where: { id: 'certificate' + index.toString() + userId },
+          create: {
+            id: 'certificate' + index.toString() + userId,
+            resumeId: userId,
+            name: value.name,
+            certificateDate: value.certificateDate,
+            issuer: value.issuer,
+            score: value.score,
+            content: value.score,
+          },
+          update: {
+            name: value.name || existing.name,
+            certificateDate: value.certificateDate || existing.certificateDate,
+            issuer: value.issuer || existing.issuer,
+            score: value.score || existing.score,
+            content: value.content || existing.content,
+          },
+        }),
+      ),
+    );
+  }
+
+  // 이력서 경력 추가
+  async editCareer(dto: DCareer[], userId: string) {
+    const existing = await this.prismaService.career.findUnique({
+      where: { id: userId },
+    });
+
+    await Promise.all(
+      dto.map((value: DCareer, index: number) =>
+        this.prismaService.career.upsert({
+          where: { id: 'career' + index.toString() + userId },
+          create: {
+            id: 'career' + index.toString() + userId,
+            resumeId: userId,
+            company: value.company,
+            position: value.position,
+            content: value.content,
+            startDate: value.startDate,
+            endDate: value.endDate,
+          },
+          update: {
+            company: value.company || existing.company,
+            position: value.position || existing.position,
+            content: value.content || existing.content,
+            startDate: value.startDate || existing.startDate,
+            endDate: value.endDate || existing.endDate,
+          },
+        }),
+      ),
+    );
+  }
+
+  // 이력서 사이트 추가
+  async editSite(dto: DSite[], userId: string) {
+    const existing = await this.prismaService.site.findUnique({
+      where: { id: userId },
+    });
+
+    await Promise.all(
+      dto.map((value: DSite, index: number) =>
+        this.prismaService.site.upsert({
+          where: { id: 'site' + index.toString() + userId },
+          create: {
+            id: 'site' + index.toString() + userId,
+            resumeId: userId,
+            title: value.title,
+            content: value.content,
+            url: value.url,
+          },
+          update: {
+            title: value.title || existing.title,
+            content: value.content || existing.content,
+            url: value.url || existing.url,
+          },
+        }),
+      ),
+    );
+  }
+
+  // 이력서 추가사항 추가
+  async editAdditionalResume(dto: DAdditionalResume[], userId: string) {
+    const existing = await this.prismaService.site.findUnique({
+      where: { id: userId },
+    });
+
+    await Promise.all(
+      dto.map((value: DAdditionalResume, index: number) =>
+        this.prismaService.additionalResume.upsert({
+          where: { id: 'additional' + index.toString() + userId },
+          create: {
+            id: 'additional' + index.toString() + userId,
+            resumeId: userId,
+            title: value.title,
+            content: value.content,
+          },
+          update: {
+            title: value.title || existing.title,
+            content: value.content || existing.content,
+          },
+        }),
+      ),
+    );
+  }
 }

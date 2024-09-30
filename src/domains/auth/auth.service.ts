@@ -33,14 +33,14 @@ export class AuthService {
     accountType: string,
   ): Promise<{ access_token: string }> {
     const payload = {
-      sub: data.id,
+      id: data.id,
       email: data.email,
       accountType: accountType,
     };
     return {
       access_token: await this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('JWT_SECRET_KEY'),
-        expiresIn: '5m',
+        expiresIn: '5d',
       }),
     };
   }
@@ -50,7 +50,7 @@ export class AuthService {
     accountType: string,
   ): Promise<{ refresh_token: string }> {
     const payload = {
-      sub: data.id,
+      id: data.id,
       email: data.email,
       accountType: accountType,
     };

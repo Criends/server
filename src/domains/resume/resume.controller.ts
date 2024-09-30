@@ -1,7 +1,17 @@
-import { Body, Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { ResumeService } from './resume.service';
-import { DGetAllResumes } from './resume.dto';
+import {
+  DActivity,
+  DAdditionalResume,
+  DCareer,
+  DCertificate,
+  DGetAllResumes,
+  DIntroduce,
+  DResumeInfo,
+} from './resume.dto';
 import { Guard } from 'src/decorators/guard.decorator';
+import { DAccount } from 'src/decorators/account.decorator';
+import { User } from '../user/user.dto';
 
 @Controller('resume')
 export class ResumeController {
@@ -13,8 +23,56 @@ export class ResumeController {
   }
 
   @Guard(['user', 'company'])
-  @Get()
-  async findResume(@Param() id: string) {
+  @Get(':id')
+  async findResume(@Param('id') id: string) {
     return await this.resumeService.getResume(id);
+  }
+
+  // @Guard('user')
+  // @Post()
+  // async createResume(@Body() dto: DResume, @DAccount('user') user: User) {
+  //   return await this.resumeService.createAndUpdateResume(dto, user);
+  // }
+
+  @Guard('user')
+  @Patch('personnel-info')
+  async editResumeInfo(@Body() dto: DResumeInfo, @DAccount('user') user: User) {
+    return await this.resumeService.editResumeInfo(dto, user.id);
+  }
+
+  @Guard('user')
+  @Patch('introduce')
+  async editIntroduce(@Body() dto: DIntroduce[], @DAccount('user') user: User) {
+    return await this.resumeService.editIntroduce(dto, user.id);
+  }
+
+  @Guard('user')
+  @Patch('activity')
+  async editActivity(@Body() dto: DActivity[], @DAccount('user') user: User) {
+    return await this.resumeService.editActivity(dto, user.id);
+  }
+
+  @Guard('user')
+  @Patch('certificate')
+  async editCertificate(
+    @Body() dto: DCertificate[],
+    @DAccount('user') user: User,
+  ) {
+    return await this.resumeService.editCertificate(dto, user.id);
+  }
+
+  @Guard('user')
+  @Patch('career')
+  async editCareer(@Body() dto: DCareer[], @DAccount('user') user: User) {
+    return await this.resumeService.editCareer(dto, user.id);
+  }
+
+  @Guard('user')
+  @Patch('additional')
+  async editAdditionalResume(
+    @Body() dto: DAdditionalResume[],
+    @DAccount('user') user: User,
+  ) {
+    return await this.resumeService.editAdditionalResume(dto, user.id);
   }
 }

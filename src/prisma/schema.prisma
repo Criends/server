@@ -116,7 +116,7 @@ model ResumeInfo {
 }
 
 model Introduce {
-  id        Int    @id @default(autoincrement())
+  id        String @id
   resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   resumeId  String
   oneLine   String
@@ -124,7 +124,7 @@ model Introduce {
 }
 
 model Activity {
-  id        Int    @id @default(autoincrement())
+  id        String @id
   resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   resumeId  String
   title     String
@@ -134,7 +134,7 @@ model Activity {
 }
 
 model Certificate {
-  id              Int     @id @default(autoincrement())
+  id              String  @id
   resume          Resume  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   resumeId        String
   name            String
@@ -145,7 +145,7 @@ model Certificate {
 }
 
 model Career {
-  id        Int    @id @default(autoincrement())
+  id        String @id
   resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   resumeId  String
   company   String
@@ -156,7 +156,7 @@ model Career {
 }
 
 model Site {
-  id       Int     @id @default(autoincrement())
+  id       String  @id
   resume   Resume  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   resumeId String
   title    String
@@ -165,7 +165,7 @@ model Site {
 }
 
 model AdditionalResume {
-  id       Int    @id @default(autoincrement())
+  id       String @id
   resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   resumeId String
   title    String
@@ -200,7 +200,7 @@ model Project {
 }
 
 model AdditionalPortfolio {
-  id        Int     @id @default(autoincrement())
+  id        String  @id
   project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
   projectId String
 }
@@ -219,7 +219,7 @@ model ProjectInfo {
 }
 
 model Contribution {
-  id           Int     @id @default(autoincrement())
+  id           String  @id
   project      Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
   projectId    String
   contribution String
@@ -227,7 +227,7 @@ model Contribution {
 }
 
 model TroubleShooting {
-  id        Int     @id @default(autoincrement())
+  id        String  @id
   project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
   projectId String  @unique
   trouble   String
@@ -235,7 +235,7 @@ model TroubleShooting {
 }
 
 model Team {
-  id            Int         @id @default(autoincrement())
+  id            String      @id
   projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
   projectInfoId String
   role          String
@@ -243,13 +243,13 @@ model Team {
 }
 
 model Skill {
-  id            Int         @id @default(autoincrement())
+  id            String      @id
   projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
   projectInfoId String
 }
 
 model ProjectSite {
-  id            Int         @id @default(autoincrement())
+  id            String      @id
   projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
   projectInfoId String
 }

@@ -1,5 +1,5 @@
 import { ExposeRange } from '@prisma/client';
-import { IsEnum, IsNumber } from 'class-validator';
+import { IsEnum } from 'class-validator';
 
 export enum SortResume {
   'UPDATED_AT',
@@ -8,12 +8,12 @@ export enum SortResume {
 }
 
 export class DResume {
-  id: string;
-  likes: number;
+  id?: string;
+  likes?: number;
   title: string;
   expose: ExposeRange;
-  proposal: number;
-  updatedAt: Date;
+  proposal?: number;
+  updatedAt?: Date;
   resumeInfo: DResumeInfo;
   introduce?: DIntroduce[];
   activity?: DActivity[];
@@ -24,24 +24,24 @@ export class DResume {
 }
 
 export class DResumeInfo {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
+  id?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
   profileImage?: string;
 }
 
 export class DIntroduce {
-  id: number;
-  resumeId: string;
+  id?: string;
+  resumeId?: string;
   oneLine: string;
   introduce: string;
 }
 
 export class DActivity {
-  id: number;
-  resumeId: string;
+  id?: string;
+  resumeId?: string;
   title: string;
   content: string;
   startDate: string;
@@ -49,8 +49,8 @@ export class DActivity {
 }
 
 export class DCertificate {
-  id: number;
-  resumeId: string;
+  id?: string;
+  resumeId?: string;
   name: string;
   certificateDate: string;
   issuer: string;
@@ -59,8 +59,8 @@ export class DCertificate {
 }
 
 export class DCareer {
-  id: number;
-  resumeId: string;
+  id?: string;
+  resumeId?: string;
   company: string;
   position: string;
   content: string;
@@ -69,16 +69,16 @@ export class DCareer {
 }
 
 export class DSite {
-  id: number;
-  resumeId: string;
+  id?: string;
+  resumeId?: string;
   title: string;
   content?: string;
   url: string;
 }
 
 export class DAdditionalResume {
-  id: number;
-  resumeId: string;
+  id?: string;
+  resumeId?: string;
   title: string;
   content: string;
 }
