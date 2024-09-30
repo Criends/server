@@ -7,12 +7,10 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
-  DResume,
   DResumeInfo,
   DSite,
   SortResume,
 } from './resume.dto';
-import { User } from '../user/user.dto';
 
 @Injectable()
 export class ResumeService {
