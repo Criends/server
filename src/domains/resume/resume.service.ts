@@ -1,7 +1,6 @@
 import { PrismaService } from './../../prisma/prisma.service';
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -47,7 +46,7 @@ export class ResumeService {
 
   //다수 이력서 조회
   async getAllResumes(data: DGetAllResumes) {
-    let orderByField;
+    let orderByField: object;
 
     switch (data.sort) {
       case SortResume.UPDATED_AT:
