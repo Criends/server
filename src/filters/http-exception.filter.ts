@@ -8,17 +8,19 @@ import {
 import { Response } from 'express';
 import { TExceptionResponse, TResponse } from 'src/types/response.type';
 
-type ErrorWithStatus = Error & { getStatus?: () => number };
+type ErrorWithStatus = Error & { getStatus: () => number };
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: ErrorWithStatus, host: ArgumentsHost) {
+    console.log('exception caused!');
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const message = this.getMessage(exception);
     const statusCode = this.getStatusCode(exception);
 
     const errorResponse: TResponse<null> = {
+      success: false,
       statusCode: statusCode,
       message,
     };
@@ -30,7 +32,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       return exception.getStatus();
     }
-    return HttpStatus.BAD_REQUEST;
+    return exception.getStatus?.() || HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
   private getMessage(exception: ErrorWithStatus): string {
@@ -40,6 +42,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exceptionResponse
         : exceptionResponse.message;
     }
-    return exception.message;
+    return exception.message || 'Internal server error';
   }
 }

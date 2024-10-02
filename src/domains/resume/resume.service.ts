@@ -1,5 +1,10 @@
 import { PrismaService } from './../../prisma/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   DActivity,
   DAdditionalResume,
@@ -66,13 +71,15 @@ export class ResumeService {
   }
 
   async deleteItem(itemId: string) {
-    if (itemId.startsWith('introduce')) this.deleteIntroduce(itemId);
-    else if (itemId.startsWith('activity')) this.deleteActivity(itemId);
-    else if (itemId.startsWith('certificate')) this.deleteCertificate(itemId);
-    else if (itemId.startsWith('career')) this.deleteCareer(itemId);
-    else if (itemId.startsWith('site')) this.deleteSite(itemId);
+    if (itemId.startsWith('introduce')) await this.deleteIntroduce(itemId);
+    else if (itemId.startsWith('activity')) await this.deleteActivity(itemId);
+    else if (itemId.startsWith('certificate'))
+      await this.deleteCertificate(itemId);
+    else if (itemId.startsWith('career')) await this.deleteCareer(itemId);
+    else if (itemId.startsWith('site')) await this.deleteSite(itemId);
     else if (itemId.startsWith('additional'))
-      this.deleteAdditionalResume(itemId);
+      await this.deleteAdditionalResume(itemId);
+    else throw new BadRequestException('존재하지 않는 항목입니다.');
   }
 
   // 이력서 개인정보 추가
@@ -260,11 +267,9 @@ export class ResumeService {
   // 이력서 경력 삭제
   async deleteCareer(id: string) {
     try {
-      await this.prismaService.career.delete({
-        where: { id: id },
-      });
+      await this.prismaService.career.delete({ where: { id: id } });
     } catch {
-      throw new NotFoundException('존재하지 않는 항목입니다.');
+      throw new ForbiddenException('존재하지 않는 항목입니다.');
     }
   }
 
