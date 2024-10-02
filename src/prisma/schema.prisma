@@ -90,10 +90,10 @@ model Notice {
 model Resume {
   user             User               @relation(fields: [id], references: [id], onDelete: Cascade)
   id               String             @id
-  likes            Int?                @default(0)
+  likes            Int?               @default(0)
   title            String?
   expose           ExposeRange        @default(SECRET)
-  proposal         Int?                @default(0)
+  proposal         Int?               @default(0)
   updatedAt        DateTime
   resumeInfo       ResumeInfo?
   introduce        Introduce[]
@@ -116,17 +116,19 @@ model ResumeInfo {
 }
 
 model Introduce {
-  id        String @id
-  resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  resumeId  String
-  oneLine   String
-  introduce String
+  id       String @id
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  index    Int
+  resumeId String
+  title    String
+  content  String
 }
 
 model Activity {
   id        String @id
   resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   resumeId  String
+  index     Int
   title     String
   content   String
   startDate String
@@ -136,6 +138,7 @@ model Activity {
 model Certificate {
   id              String  @id
   resume          Resume  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  index           Int
   resumeId        String
   name            String
   certificateDate String
@@ -147,6 +150,7 @@ model Certificate {
 model Career {
   id        String @id
   resume    Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  index     Int
   resumeId  String
   company   String
   position  String
@@ -158,6 +162,7 @@ model Career {
 model Site {
   id       String  @id
   resume   Resume  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  index    Int
   resumeId String
   title    String
   content  String?
@@ -167,6 +172,7 @@ model Site {
 model AdditionalResume {
   id       String @id
   resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  index    Int
   resumeId String
   title    String
   content  String
@@ -191,6 +197,7 @@ model Portfolio {
 
 model Project {
   id                  Int                   @id @default(autoincrement())
+  index               Int
   portfolio           Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   portfolioId         String                @unique
   additionalPortfolio AdditionalPortfolio[]
@@ -202,6 +209,7 @@ model Project {
 model AdditionalPortfolio {
   id        String  @id
   project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  index     Int
   projectId String
 }
 
@@ -221,6 +229,7 @@ model ProjectInfo {
 model Contribution {
   id           String  @id
   project      Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  index        Int
   projectId    String
   contribution String
   content      String?
@@ -229,6 +238,7 @@ model Contribution {
 model TroubleShooting {
   id        String  @id
   project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  index     Int
   projectId String  @unique
   trouble   String
   content   String?
@@ -237,6 +247,7 @@ model TroubleShooting {
 model Team {
   id            String      @id
   projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
+  index         Int
   projectInfoId String
   role          String
   headCount     Int?
@@ -245,12 +256,14 @@ model Team {
 model Skill {
   id            String      @id
   projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
+  index         Int
   projectInfoId String
 }
 
 model ProjectSite {
   id            String      @id
   projectInfo   ProjectInfo @relation(fields: [projectInfoId], references: [projectInfoId], onDelete: Cascade)
+  index         Int
   projectInfoId String
 }
 

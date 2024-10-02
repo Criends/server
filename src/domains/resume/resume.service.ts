@@ -11,6 +11,7 @@ import {
   DSite,
   SortResume,
 } from './resume.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ResumeService {
@@ -26,12 +27,12 @@ export class ResumeService {
         likes: true,
         proposal: true,
         resumeInfo: true,
-        introduce: true,
-        activity: true,
-        certificate: true,
-        career: true,
-        site: true,
-        additionalResume: true,
+        introduce: { orderBy: { index: 'asc' } },
+        activity: { orderBy: { index: 'asc' } },
+        certificate: { orderBy: { index: 'asc' } },
+        career: { orderBy: { index: 'asc' } },
+        site: { orderBy: { index: 'asc' } },
+        additionalResume: { orderBy: { index: 'asc' } },
       },
     });
 
@@ -102,16 +103,18 @@ export class ResumeService {
     return await Promise.all(
       dto.map((value: DIntroduce, index: number) =>
         this.prismaService.introduce.upsert({
-          where: { id: 'introduce' + index.toString() + userId },
+          where: { id: value.id || null },
           create: {
             id: 'introduce' + index.toString() + userId,
             resumeId: userId,
-            oneLine: value.oneLine,
-            introduce: value.introduce,
+            index: value.index,
+            title: value.title,
+            content: value.content,
           },
           update: {
-            oneLine: value.oneLine || existing.oneLine,
-            introduce: value.introduce || existing.introduce,
+            index: value.index || existing.index,
+            title: value.title || existing.title,
+            content: value.content || existing.content,
           },
         }),
       ),
@@ -143,12 +146,14 @@ export class ResumeService {
           create: {
             id: 'activity' + index.toString() + userId,
             resumeId: userId,
+            index: value.index,
             title: value.title,
             content: value.content,
             startDate: value.startDate,
             endDate: value.endDate,
           },
           update: {
+            index: value.index || existing.index,
             title: value.title || existing.title,
             content: value.content || existing.content,
             startDate: value.startDate || existing.startDate,
@@ -185,6 +190,7 @@ export class ResumeService {
           create: {
             id: 'certificate' + index.toString() + userId,
             resumeId: userId,
+            index: value.index,
             name: value.name,
             certificateDate: value.certificateDate,
             issuer: value.issuer,
@@ -192,6 +198,7 @@ export class ResumeService {
             content: value.score,
           },
           update: {
+            index: value.index || existing.index,
             name: value.name || existing.name,
             certificateDate: value.certificateDate || existing.certificateDate,
             issuer: value.issuer || existing.issuer,
@@ -229,6 +236,7 @@ export class ResumeService {
           create: {
             id: 'career' + index.toString() + userId,
             resumeId: userId,
+            index: value.index,
             company: value.company,
             position: value.position,
             content: value.content,
@@ -236,6 +244,7 @@ export class ResumeService {
             endDate: value.endDate,
           },
           update: {
+            index: value.index || existing.index,
             company: value.company || existing.company,
             position: value.position || existing.position,
             content: value.content || existing.content,
@@ -273,11 +282,13 @@ export class ResumeService {
           create: {
             id: 'site' + index.toString() + userId,
             resumeId: userId,
+            index: value.index,
             title: value.title,
             content: value.content,
             url: value.url,
           },
           update: {
+            index: value.index || existing.index,
             title: value.title || existing.title,
             content: value.content || existing.content,
             url: value.url || existing.url,
@@ -313,10 +324,12 @@ export class ResumeService {
           create: {
             id: 'additional' + index.toString() + userId,
             resumeId: userId,
+            index: value.index,
             title: value.title,
             content: value.content,
           },
           update: {
+            index: value.index || existing.index,
             title: value.title || existing.title,
             content: value.content || existing.content,
           },

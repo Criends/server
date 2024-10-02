@@ -10,11 +10,11 @@ export enum SortResume {
 export class DResume {
   id?: string;
   likes?: number;
-  title?: string;
-  expose?: ExposeRange;
+  title: string;
+  expose: ExposeRange;
   proposal?: number;
   updatedAt?: Date;
-  resumeInfo?: DResumeInfo;
+  resumeInfo: DResumeInfo;
   introduce?: DIntroduce[];
   activity?: DActivity[];
   certificate?: DCertificate[];
@@ -35,13 +35,15 @@ export class DResumeInfo {
 export class DIntroduce {
   id?: string;
   resumeId?: string;
-  oneLine: string;
-  introduce: string;
+  index: number;
+  title: string;
+  content: string;
 }
 
 export class DActivity {
   id?: string;
   resumeId?: string;
+  index: number;
   title: string;
   content: string;
   startDate: string;
@@ -51,6 +53,7 @@ export class DActivity {
 export class DCertificate {
   id?: string;
   resumeId?: string;
+  index: number;
   name: string;
   certificateDate: string;
   issuer: string;
@@ -61,6 +64,7 @@ export class DCertificate {
 export class DCareer {
   id?: string;
   resumeId?: string;
+  index: number;
   company: string;
   position: string;
   content: string;
@@ -71,6 +75,7 @@ export class DCareer {
 export class DSite {
   id?: string;
   resumeId?: string;
+  index: number;
   title: string;
   content?: string;
   url: string;
@@ -79,6 +84,7 @@ export class DSite {
 export class DAdditionalResume {
   id?: string;
   resumeId?: string;
+  index: number;
   title: string;
   content: string;
 }
