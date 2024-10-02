@@ -11,7 +11,6 @@ import {
   DSite,
   SortResume,
 } from './resume.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ResumeService {
@@ -85,66 +84,68 @@ export class ResumeService {
     return await this.prismaService.resumeInfo.update({
       where: { id: userId },
       data: {
-        name: dto.name || existing.name,
-        email: dto.email || existing.email,
-        phone: dto.phone || existing.phone,
-        address: dto.address || existing.address,
-        profileImage: dto.profileImage || existing.profileImage,
+        name: dto.name ?? existing.name,
+        email: dto.email ?? existing.email,
+        phone: dto.phone ?? existing.phone,
+        address: dto.address ?? existing.address,
+        profileImage: dto.profileImage ?? existing.profileImage,
       },
     });
   }
 
   // 이력서 자기소개 추가
   async editIntroduce(dto: DIntroduce[], userId: string) {
-    const existing = await this.prismaService.introduce.findUnique({
-      where: { id: userId },
-    });
-
     return await Promise.all(
-      dto.map((value: DIntroduce, index: number) =>
-        this.prismaService.introduce.upsert({
-          where: { id: value.id || null },
+      dto.map(async (value: DIntroduce) => {
+        let existing: DIntroduce;
+        if (value.id)
+          existing = await this.prismaService.introduce.findUnique({
+            where: { id: value.id },
+          });
+
+        return await this.prismaService.introduce.upsert({
+          where: { id: value.id || 'undefined' },
           create: {
-            id: 'introduce' + index.toString() + userId,
+            id: 'introduce' + value.index.toString() + userId,
             resumeId: userId,
             index: value.index,
             title: value.title,
             content: value.content,
           },
           update: {
-            index: value.index || existing.index,
-            title: value.title || existing.title,
-            content: value.content || existing.content,
+            index: value.index ?? existing.index,
+            title: value.title ?? existing.title,
+            content: value.content ?? existing.content,
           },
-        }),
-      ),
+        });
+      }),
     );
   }
 
   async deleteIntroduce(id: string) {
-    const introduce = await this.prismaService.introduce.findFirst({
-      where: { id: id },
-    });
-
-    if (!introduce) throw new NotFoundException('존재하지 않는 항목입니다.');
-
-    await this.prismaService.introduce.delete({
-      where: { id: id },
-    });
+    try {
+      await this.prismaService.introduce.delete({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
   }
 
   // 이력서 활동 추가
   async editActivity(dto: DActivity[], userId: string) {
-    const existing = await this.prismaService.activity.findUnique({
-      where: { id: userId },
-    });
-
     return await Promise.all(
-      dto.map((value: DActivity, index: number) =>
-        this.prismaService.activity.upsert({
-          where: { id: 'activity' + index.toString() + userId },
+      dto.map(async (value: DActivity) => {
+        let existing: DActivity;
+        if (value.id)
+          existing = await this.prismaService.activity.findUnique({
+            where: { id: value.id },
+          });
+
+        return await this.prismaService.activity.upsert({
+          where: { id: value.id || 'undefined' },
           create: {
-            id: 'activity' + index.toString() + userId,
+            id: 'activity' + value.index.toString() + userId,
             resumeId: userId,
             index: value.index,
             title: value.title,
@@ -153,88 +154,88 @@ export class ResumeService {
             endDate: value.endDate,
           },
           update: {
-            index: value.index || existing.index,
-            title: value.title || existing.title,
-            content: value.content || existing.content,
-            startDate: value.startDate || existing.startDate,
-            endDate: value.endDate || existing.endDate,
+            index: value.index ?? existing.index,
+            title: value.title ?? existing.title,
+            content: value.content ?? existing.content,
+            startDate: value.startDate ?? existing.startDate,
+            endDate: value.endDate ?? existing.endDate,
           },
-        }),
-      ),
+        });
+      }),
     );
   }
 
   // 이력서 활동 삭제
   async deleteActivity(id: string) {
-    const activity = await this.prismaService.activity.findFirst({
-      where: { id: id },
-    });
-
-    if (!activity) throw new NotFoundException('존재하지 않는 항목입니다.');
-
-    await this.prismaService.activity.delete({
-      where: { id: id },
-    });
+    try {
+      await this.prismaService.activity.delete({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
   }
 
   // 이력서 자격증 추가
   async editCertificate(dto: DCertificate[], userId: string) {
-    const existing = await this.prismaService.certificate.findUnique({
-      where: { id: userId },
-    });
+    return await Promise.all(
+      dto.map(async (value: DCertificate) => {
+        let existing: DCertificate;
+        if (value.id)
+          existing = await this.prismaService.certificate.findUnique({
+            where: { id: value.id },
+          });
 
-    await Promise.all(
-      dto.map((value: DCertificate, index: number) =>
-        this.prismaService.certificate.upsert({
-          where: { id: 'certificate' + index.toString() + userId },
+        return await this.prismaService.certificate.upsert({
+          where: { id: value.id ?? 'certificate' + value.index + userId },
           create: {
-            id: 'certificate' + index.toString() + userId,
+            id: 'certificate' + value.index + userId,
             resumeId: userId,
             index: value.index,
             name: value.name,
             certificateDate: value.certificateDate,
             issuer: value.issuer,
             score: value.score,
-            content: value.score,
+            content: value.content,
           },
           update: {
-            index: value.index || existing.index,
-            name: value.name || existing.name,
-            certificateDate: value.certificateDate || existing.certificateDate,
-            issuer: value.issuer || existing.issuer,
-            score: value.score || existing.score,
-            content: value.content || existing.content,
+            index: value.index ?? existing?.index,
+            name: value.name ?? existing?.name,
+            certificateDate: value.certificateDate ?? existing?.certificateDate,
+            issuer: value.issuer ?? existing?.issuer,
+            score: value.score ?? existing?.score,
+            content: value.content ?? existing?.content,
           },
-        }),
-      ),
+        });
+      }),
     );
   }
 
   // 이력서 자격증 삭제
   async deleteCertificate(id: string) {
-    const certificate = await this.prismaService.certificate.findFirst({
-      where: { id: id },
-    });
-
-    if (!certificate) throw new NotFoundException('존재하지 않는 항목입니다.');
-
-    await this.prismaService.certificate.delete({
-      where: { id: id },
-    });
+    try {
+      await this.prismaService.certificate.delete({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
   }
 
   // 이력서 경력 추가
   async editCareer(dto: DCareer[], userId: string) {
-    const existing = await this.prismaService.career.findUnique({
-      where: { id: userId },
-    });
+    return await Promise.all(
+      dto.map(async (value: DCareer) => {
+        let existing: DCareer;
+        if (value.id)
+          existing = await this.prismaService.career.findUnique({
+            where: { id: value.id },
+          });
 
-    await Promise.all(
-      dto.map((value: DCareer, index: number) =>
-        this.prismaService.career.upsert({
-          where: { id: 'career' + index.toString() + userId },
+        return await this.prismaService.career.upsert({
+          where: { id: value.id || 'undefined' },
           create: {
-            id: 'career' + index.toString() + userId,
+            id: 'career' + value.index.toString() + userId,
             resumeId: userId,
             index: value.index,
             company: value.company,
@@ -244,43 +245,43 @@ export class ResumeService {
             endDate: value.endDate,
           },
           update: {
-            index: value.index || existing.index,
-            company: value.company || existing.company,
-            position: value.position || existing.position,
-            content: value.content || existing.content,
-            startDate: value.startDate || existing.startDate,
-            endDate: value.endDate || existing.endDate,
+            index: value.index ?? existing.index,
+            company: value.company ?? existing.company,
+            position: value.position ?? existing.position,
+            content: value.content ?? existing.content,
+            startDate: value.startDate ?? existing.startDate,
+            endDate: value.endDate ?? existing.endDate,
           },
-        }),
-      ),
+        });
+      }),
     );
   }
 
   // 이력서 경력 삭제
   async deleteCareer(id: string) {
-    const career = await this.prismaService.career.findFirst({
-      where: { id: id },
-    });
-
-    if (!career) throw new NotFoundException('존재하지 않는 항목입니다.');
-
-    await this.prismaService.career.delete({
-      where: { id: id },
-    });
+    try {
+      await this.prismaService.career.delete({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
   }
 
   // 이력서 사이트 추가
   async editSite(dto: DSite[], userId: string) {
-    const existing = await this.prismaService.site.findUnique({
-      where: { id: userId },
-    });
+    return await Promise.all(
+      dto.map(async (value: DSite) => {
+        let existing: DSite;
+        if (value.id)
+          existing = await this.prismaService.site.findUnique({
+            where: { id: value.id },
+          });
 
-    await Promise.all(
-      dto.map((value: DSite, index: number) =>
-        this.prismaService.site.upsert({
-          where: { id: 'site' + index.toString() + userId },
+        return await this.prismaService.site.upsert({
+          where: { id: value.id || 'undefined' },
           create: {
-            id: 'site' + index.toString() + userId,
+            id: 'site' + value.index.toString() + userId,
             resumeId: userId,
             index: value.index,
             title: value.title,
@@ -288,68 +289,66 @@ export class ResumeService {
             url: value.url,
           },
           update: {
-            index: value.index || existing.index,
-            title: value.title || existing.title,
-            content: value.content || existing.content,
-            url: value.url || existing.url,
+            index: value.index ?? existing.index,
+            title: value.title ?? existing.title,
+            content: value.content ?? existing.content,
+            url: value.url ?? existing.url,
           },
-        }),
-      ),
+        });
+      }),
     );
   }
 
   // 이력서 사이트 삭제
   async deleteSite(id: string) {
-    const site = await this.prismaService.site.findFirst({
-      where: { id: id },
-    });
-
-    if (!site) throw new NotFoundException('존재하지 않는 항목입니다.');
-
-    await this.prismaService.site.delete({
-      where: { id: id },
-    });
+    try {
+      await this.prismaService.site.delete({
+        where: { id: id },
+      });
+    } catch {
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
   }
 
   // 이력서 추가사항 추가
   async editAdditionalResume(dto: DAdditionalResume[], userId: string) {
-    const existing = await this.prismaService.site.findUnique({
-      where: { id: userId },
-    });
+    return await Promise.all(
+      dto.map(async (value: DAdditionalResume) => {
+        let existing: DAdditionalResume;
+        if (value.id)
+          existing = await this.prismaService.additionalResume.findUnique({
+            where: { id: value.id },
+          });
 
-    await Promise.all(
-      dto.map((value: DAdditionalResume, index: number) =>
-        this.prismaService.additionalResume.upsert({
-          where: { id: 'additional' + index.toString() + userId },
+        return await this.prismaService.additionalResume.upsert({
+          where: {
+            id: value.id ?? 'additional' + value.index.toString() + userId,
+          },
           create: {
-            id: 'additional' + index.toString() + userId,
+            id: 'additional' + value.index.toString() + userId,
             resumeId: userId,
             index: value.index,
             title: value.title,
             content: value.content,
           },
           update: {
-            index: value.index || existing.index,
-            title: value.title || existing.title,
-            content: value.content || existing.content,
+            index: value.index ?? existing.index,
+            title: value.title ?? existing.title,
+            content: value.content ?? existing.content,
           },
-        }),
-      ),
+        });
+      }),
     );
   }
 
   // 이력서 추가사항 삭제
   async deleteAdditionalResume(id: string) {
-    const additionalResume =
-      await this.prismaService.additionalResume.findFirst({
+    try {
+      await this.prismaService.additionalResume.delete({
         where: { id: id },
       });
-
-    if (!additionalResume)
+    } catch {
       throw new NotFoundException('존재하지 않는 항목입니다.');
-
-    await this.prismaService.additionalResume.delete({
-      where: { id: id },
-    });
+    }
   }
 }

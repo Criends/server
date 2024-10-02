@@ -53,11 +53,11 @@ export class DActivity {
 export class DCertificate {
   id?: string;
   resumeId?: string;
-  index: number;
-  name: string;
-  certificateDate: string;
+  index?: number;
+  name?: string;
+  certificateDate?: string;
   issuer: string;
-  score: string;
+  score?: string;
   content?: string;
 }
 
