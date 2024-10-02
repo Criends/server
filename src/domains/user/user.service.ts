@@ -27,6 +27,19 @@ export class UserService {
       data: { id, email: data.email, password: hash },
     });
 
+    await this.prismaService.resume.create({
+      data: {
+        user: { connect: { id: id } },
+        updatedAt: new Date(),
+      },
+    });
+
+    await this.prismaService.portfolio.create({
+      data: {
+        user: { connect: { id: id } },
+      },
+    });
+
     return newUser;
   }
 

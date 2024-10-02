@@ -8,6 +8,7 @@ import {
   DGetAllResumes,
   DIntroduce,
   DResumeInfo,
+  DSite,
 } from './resume.dto';
 import { Guard } from 'src/decorators/guard.decorator';
 import { DAccount } from 'src/decorators/account.decorator';
@@ -59,6 +60,12 @@ export class ResumeController {
   @Patch('career')
   async editCareer(@Body() dto: DCareer[], @DAccount('user') user: User) {
     return await this.resumeService.editCareer(dto, user.id);
+  }
+
+  @Guard('user')
+  @Patch('site')
+  async editSite(@Body() dto: DSite[], @DAccount('user') user: User) {
+    return await this.resumeService.editSite(dto, user.id);
   }
 
   @Guard('user')

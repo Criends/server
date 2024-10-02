@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Resume" ALTER COLUMN "likes" DROP NOT NULL,
+ALTER COLUMN "title" DROP NOT NULL,
+ALTER COLUMN "proposal" DROP NOT NULL;
