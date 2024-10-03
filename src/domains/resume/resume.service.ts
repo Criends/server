@@ -11,6 +11,7 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DResume,
   DResumeInfo,
   DSite,
   SortResume,
@@ -110,6 +111,21 @@ export class ResumeService {
         } catch {}
       }),
     );
+  }
+
+  async editResume(dto: DResume, userId: string) {
+    const existing = await this.prismaService.resume.findUnique({
+      where: { id: userId },
+    });
+
+    return await this.prismaService.resume.update({
+      where: { id: userId },
+      data: {
+        title: dto.title ?? existing.title,
+        expose: dto.expose ?? existing.expose,
+        updatedAt: new Date(),
+      },
+    });
   }
 
   // 이력서 개인정보 추가
@@ -322,5 +338,42 @@ export class ResumeService {
         });
       }),
     );
+  }
+
+  async likeUnlikeResume(resumeId: string, userId: string) {
+    if (resumeId === userId)
+      throw new BadRequestException(
+        '본인의 이력서에는 좋아요를 누를 수 없습니다.',
+      );
+
+    const check = await this.prismaService.likeResume.findUnique({
+      where: { userId_resumeId: { userId, resumeId } },
+    });
+
+    if (!check) {
+      await this.prismaService.resume.update({
+        where: { id: resumeId },
+        data: {
+          likes: {
+            increment: 1,
+          },
+        },
+      });
+      return await this.prismaService.likeResume.create({
+        data: { resumeId: resumeId, userId: userId },
+      });
+    } else {
+      await this.prismaService.resume.update({
+        where: { id: resumeId },
+        data: {
+          likes: {
+            decrement: 1,
+          },
+        },
+      });
+      return await this.prismaService.likeResume.delete({
+        where: { userId_resumeId: { userId, resumeId } },
+      });
+    }
   }
 }
