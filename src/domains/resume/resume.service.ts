@@ -69,7 +69,7 @@ export class ResumeService {
     return resumes;
   }
 
-  async deleteItem(itemId: string) {
+  async deleteItem(itemId: string, userId: string) {
     let target: string;
 
     if (itemId.startsWith('introduce')) target = 'introduce';
@@ -81,7 +81,9 @@ export class ResumeService {
     else throw new BadRequestException('존재하지 않는 항목입니다.');
 
     try {
-      await this.prismaService[target].delete({ where: { id: itemId } });
+      await this.prismaService[target].delete({
+        where: { id: itemId, resumeId: userId },
+      });
     } catch {
       throw new NotFoundException('존재하지 않는 항목입니다.');
     }
