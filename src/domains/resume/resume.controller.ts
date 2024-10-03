@@ -15,6 +15,7 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DResume,
   DResumeInfo,
   DSite,
 } from './resume.dto';
@@ -35,6 +36,12 @@ export class ResumeController {
   @Get(':id')
   async findResume(@Param('id') id: string) {
     return await this.resumeService.getResume(id);
+  }
+
+  @Guard('user')
+  @Patch('resume-info')
+  async editResume(@Body() dto: DResume, @DAccount('user') user: User) {
+    return await this.resumeService.editResume(dto, user.id);
   }
 
   @Guard('user')

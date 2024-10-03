@@ -11,6 +11,7 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DResume,
   DResumeInfo,
   DSite,
   SortResume,
@@ -110,6 +111,21 @@ export class ResumeService {
         } catch {}
       }),
     );
+  }
+
+  async editResume(dto: DResume, userId: string) {
+    const existing = await this.prismaService.resume.findUnique({
+      where: { id: userId },
+    });
+
+    return await this.prismaService.resume.update({
+      where: { id: userId },
+      data: {
+        title: dto.title ?? existing.title,
+        expose: dto.expose ?? existing.expose,
+        updatedAt: new Date(),
+      },
+    });
   }
 
   // 이력서 개인정보 추가
