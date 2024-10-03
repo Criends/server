@@ -178,7 +178,7 @@ export class ResumeService {
           });
 
         return await this.prismaService.certificate.upsert({
-          where: { id: value.id ?? 'certificate' + value.index + userId },
+          where: { id: value.id ?? 'undefined' },
           create: {
             id: 'certificate' + value.index + userId,
             resumeId: userId,
@@ -280,7 +280,7 @@ export class ResumeService {
 
         return await this.prismaService.additionalResume.upsert({
           where: {
-            id: value.id ?? 'additional' + value.index.toString() + userId,
+            id: value.id ?? 'undefined',
           },
           create: {
             id: 'additional' + value.index.toString() + userId,
