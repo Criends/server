@@ -77,7 +77,7 @@ export class ResumeService {
     else if (itemId.startsWith('certificate')) target = 'certificate';
     else if (itemId.startsWith('career')) target = 'career';
     else if (itemId.startsWith('site')) target = 'site';
-    else if (itemId.startsWith('additional')) target = 'additional';
+    else if (itemId.startsWith('additionalResume')) target = 'additional';
     else throw new BadRequestException('존재하지 않는 항목입니다.');
 
     try {
@@ -87,6 +87,29 @@ export class ResumeService {
     } catch {
       throw new NotFoundException('존재하지 않는 항목입니다.');
     }
+  }
+
+  //이력서 초기화
+  async resetResume(userId: string) {
+    const target: string[] = [
+      'resumeInfo',
+      'introduce',
+      'activity',
+      'certificate',
+      'career',
+      'site',
+      'additionalResume',
+    ];
+
+    await Promise.all(
+      target.map(async (value: string) => {
+        try {
+          await this.prismaService[value].deleteMany({
+            where: { resumeId: userId },
+          });
+        } catch {}
+      }),
+    );
   }
 
   // 이력서 개인정보 추가
@@ -285,7 +308,7 @@ export class ResumeService {
             id: value.id ?? 'undefined',
           },
           create: {
-            id: 'additional' + value.index.toString() + userId,
+            id: 'additionalResume' + value.index.toString() + userId,
             resumeId: userId,
             index: value.index,
             title: value.title,

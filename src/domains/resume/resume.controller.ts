@@ -82,4 +82,10 @@ export class ResumeController {
   async deleteItem(@Body('id') id: string, @DAccount('user') user: User) {
     await this.resumeService.deleteItem(id, user.id);
   }
+
+  @Guard('user')
+  @Delete()
+  async resetResume(@DAccount('user') user: User) {
+    await this.resumeService.resetResume(user.id);
+  }
 }
