@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ResumeService } from './resume.service';
 import {
   DActivity,
@@ -87,5 +95,14 @@ export class ResumeController {
   @Delete()
   async resetResume(@DAccount('user') user: User) {
     await this.resumeService.resetResume(user.id);
+  }
+
+  @Guard('user')
+  @Post(':id')
+  async likeUnlikeResume(
+    @Param('id') id: string,
+    @DAccount('user') user: User,
+  ) {
+    return await this.resumeService.likeUnlikeResume(id, user.id);
   }
 }
