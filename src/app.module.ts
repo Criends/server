@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './domains/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ResumeModule } from './domains/resume/resume.module';
+import { PortfolioModule } from './domains/portfolio/portfolio.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ResumeModule } from './domains/resume/resume.module';
       inject: [ConfigService],
     }),
     ResumeModule,
+    PortfolioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
