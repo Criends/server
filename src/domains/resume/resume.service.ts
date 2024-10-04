@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -11,8 +12,8 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DPersonnelInfo,
   DResume,
-  DResumeInfo,
   DSite,
   SortResume,
 } from './resume.dto';
@@ -21,6 +22,7 @@ import {
 export class ResumeService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  //TODO: expose 범위에 따라 반환 여부 수정
   //단일 이력서 조회
   async getResume(id: string) {
     const resume = await this.prismaService.resume.findUnique({
@@ -30,17 +32,16 @@ export class ResumeService {
         title: true,
         likes: true,
         proposal: true,
-        resumeInfo: true,
+        personnelInfo: true,
         introduce: { orderBy: { index: 'asc' } },
         activity: { orderBy: { index: 'asc' } },
         certificate: { orderBy: { index: 'asc' } },
         career: { orderBy: { index: 'asc' } },
         site: { orderBy: { index: 'asc' } },
         additionalResume: { orderBy: { index: 'asc' } },
+        expose: true,
       },
     });
-
-    if (!resume) throw new NotFoundException('이력서가 존재하지 않습니다.');
 
     return resume;
   }
@@ -91,7 +92,9 @@ export class ResumeService {
   }
 
   //이력서 초기화
-  async resetResume(userId: string) {
+  async resetResume(resumeId: string, userId: string) {
+    if (resumeId !== userId)
+      throw new UnauthorizedException('삭제 권한이 없습니다.');
     const target: string[] = [
       'resumeInfo',
       'introduce',
@@ -128,15 +131,24 @@ export class ResumeService {
     });
   }
 
+  //TODO: null로 인해 오류 발생! 수정 로직 필요
   // 이력서 개인정보 추가
-  async editResumeInfo(dto: DResumeInfo, userId: string) {
-    const existing = await this.prismaService.resumeInfo.findUnique({
-      where: { id: userId },
+  async editPersonnelInfo(dto: DPersonnelInfo, userId: string) {
+    const existing = await this.prismaService.personnelInfo.findUnique({
+      where: { id: dto.id },
     });
 
-    return await this.prismaService.resumeInfo.update({
-      where: { id: userId },
-      data: {
+    return await this.prismaService.personnelInfo.upsert({
+      where: { id: dto.id },
+      create: {
+        id: userId,
+        name: dto.name,
+        email: dto.email,
+        phone: dto.phone,
+        address: dto.address,
+        profileImage: dto.profileImage,
+      },
+      update: {
         name: dto.name ?? existing.name,
         email: dto.email ?? existing.email,
         phone: dto.phone ?? existing.phone,

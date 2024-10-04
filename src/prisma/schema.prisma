@@ -95,7 +95,7 @@ model Resume {
   expose           ExposeRange        @default(SECRET)
   proposal         Int?               @default(0)
   updatedAt        DateTime
-  resumeInfo       ResumeInfo?
+  personnelInfo    PersonnelInfo?
   introduce        Introduce[]
   activity         Activity[]
   certificate      Certificate[]
@@ -105,7 +105,7 @@ model Resume {
   liked            LikeResume[]
 }
 
-model ResumeInfo {
+model PersonnelInfo {
   id           String  @id
   resume       Resume  @relation(fields: [id], references: [id], onDelete: Cascade)
   name         String
