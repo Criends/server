@@ -32,9 +32,10 @@ export class ResumeController {
     return await this.resumeService.getAllResumes(data);
   }
 
+  //TODO: DAccount에 company type을 union으로 추가할 것!!
   @Guard(['user', 'company'])
   @Get(':id')
-  async findResume(@Param('id') id: string) {
+  async findResume(@Param('id') id: string, @DAccount('user') user: User) {
     return await this.resumeService.getResume(id);
   }
 
@@ -94,14 +95,18 @@ export class ResumeController {
 
   @Guard('user')
   @Delete('item')
-  async deleteItem(@Body('id') id: string, @DAccount('user') user: User) {
-    await this.resumeService.deleteItem(id, user.id);
+  async deleteItem(
+    @Param('item') item: string,
+    @Body('id') id: string,
+    @DAccount('user') user: User,
+  ) {
+    await this.resumeService.deleteItem(item, user.id);
   }
 
   @Guard('user')
   @Delete()
-  async resetResume(@DAccount('user') user: User) {
-    await this.resumeService.resetResume(user.id);
+  async resetResume(@Body('id') id: string, @DAccount('user') user: User) {
+    await this.resumeService.resetResume(id, user.id);
   }
 
   @Guard('user')

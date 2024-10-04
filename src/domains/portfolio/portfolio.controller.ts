@@ -1,7 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { Guard } from 'src/decorators/guard.decorator';
-import { DAccount } from 'src/decorators/account.decorator';
 
 @Controller('portfolio')
 export class PortfolioController {

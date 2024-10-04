@@ -30,7 +30,6 @@ export class DResumeInfo {
   phone?: string;
   address?: string;
   profileImage?: string;
-  exposeRange?: ExposeRange;
 }
 
 export class DIntroduce {
