@@ -90,7 +90,7 @@ export class ResumeService {
         where: { id: itemId, resumeId: userId },
       });
     } catch {
-      throw new NotFoundException('존재하지 않는 항목입니다.');
+      throw new NotFoundException('권한이 없거나 존재하지 않는 항목입니다.');
     }
   }
 
