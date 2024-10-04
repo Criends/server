@@ -1,8 +1,10 @@
+import { AccountType } from './../../types/account.type';
 import { PrismaService } from './../../prisma/prisma.service';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -48,17 +50,18 @@ export class ResumeService {
 
   //다수 이력서 조회
   async getAllResumes(data: DGetAllResumes) {
-    let orderByField: object;
+    const orderByField: object[] = [];
 
     switch (data.sort) {
       case SortResume.UPDATED_AT:
-        orderByField = { updatedAt: 'desc' };
+        orderByField.push({ updatedAt: 'desc' });
         break;
       case SortResume.LIKES:
-        orderByField = { likes: 'desc' };
+        orderByField.push({ likes: 'desc' }, { updatedAt: 'desc' });
         break;
-      default:
-        orderByField = { proposal: 'desc' };
+      case SortResume.PROPOSAL:
+        orderByField.push({ proposal: 'desc' }, { updatedAt: 'desc' });
+        break;
     }
 
     const resumes = await this.prismaService.resume.findMany({
@@ -87,14 +90,13 @@ export class ResumeService {
         where: { id: itemId, resumeId: userId },
       });
     } catch {
-      throw new NotFoundException('존재하지 않는 항목입니다.');
+      throw new BadRequestException('권한이 없거나 존재하지 않는 항목입니다.');
     }
   }
 
   //이력서 초기화
   async resetResume(userId: string) {
-    const target: string[] = [
-      'resumeInfo',
+    const target = [
       'introduce',
       'activity',
       'certificate',
@@ -103,15 +105,34 @@ export class ResumeService {
       'additionalResume',
     ];
 
-    await Promise.all(
-      target.map(async (value: string) => {
-        try {
-          await this.prismaService[value].deleteMany({
-            where: { resumeId: userId },
-          });
-        } catch {}
+    await this.prismaService.$transaction([
+      this.prismaService.likeResume.deleteMany({
+        where: { resumeId: userId },
       }),
-    );
+      this.prismaService.resume.update({
+        where: { id: userId },
+        data: {
+          title: null,
+          likes: 0,
+          expose: 'SECRET',
+        },
+      }),
+      this.prismaService.personnelInfo.update({
+        where: { id: userId },
+        data: {
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          profileImage: '',
+        },
+      }),
+      ...target.map((table) =>
+        this.prismaService[table].deleteMany({
+          where: { resumeId: userId },
+        }),
+      ),
+    ]);
   }
 
   async editResume(dto: DResume, userId: string) {
