@@ -1,3 +1,4 @@
+import { AccountType } from './../../types/account.type';
 import { PrismaService } from './../../prisma/prisma.service';
 import {
   BadRequestException,
@@ -17,6 +18,7 @@ import {
   SortResume,
 } from './resume.dto';
 import { nanoid } from 'nanoid';
+import { User } from '../user/user.dto';
 
 @Injectable()
 export class ResumeService {
@@ -94,8 +96,7 @@ export class ResumeService {
 
   //이력서 초기화
   async resetResume(userId: string) {
-    const target: string[] = [
-      'resumeInfo',
+    const target = [
       'introduce',
       'activity',
       'certificate',
@@ -104,15 +105,34 @@ export class ResumeService {
       'additionalResume',
     ];
 
-    await Promise.all(
-      target.map(async (value: string) => {
-        try {
-          await this.prismaService[value].deleteMany({
-            where: { resumeId: userId },
-          });
-        } catch {}
+    await this.prismaService.$transaction([
+      this.prismaService.likeResume.deleteMany({
+        where: { resumeId: userId },
       }),
-    );
+      this.prismaService.resume.update({
+        where: { id: userId },
+        data: {
+          title: null,
+          likes: 0,
+          expose: 'SECRET',
+        },
+      }),
+      this.prismaService.personnelInfo.update({
+        where: { id: userId },
+        data: {
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          profileImage: '',
+        },
+      }),
+      ...target.map((table) =>
+        this.prismaService[table].deleteMany({
+          where: { resumeId: userId },
+        }),
+      ),
+    ]);
   }
 
   async editResume(dto: DResume, userId: string) {
