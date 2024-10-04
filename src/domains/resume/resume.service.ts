@@ -3,7 +3,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -53,7 +52,7 @@ export class ResumeService {
 
     switch (data.sort) {
       case SortResume.UPDATED_AT:
-        orderByField = { updatedAt: 'asc' };
+        orderByField = { updatedAt: 'desc' };
         break;
       case SortResume.LIKES:
         orderByField = { likes: 'desc' };
@@ -93,10 +92,7 @@ export class ResumeService {
   }
 
   //이력서 초기화
-  async resetResume(resumeId: string, userId: string) {
-    if (resumeId !== userId)
-      throw new UnauthorizedException('삭제 권한이 없습니다.');
-
+  async resetResume(userId: string) {
     const target: string[] = [
       'resumeInfo',
       'introduce',
