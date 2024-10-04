@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -18,7 +19,6 @@ import {
   SortResume,
 } from './resume.dto';
 import { nanoid } from 'nanoid';
-import { User } from '../user/user.dto';
 
 @Injectable()
 export class ResumeService {
