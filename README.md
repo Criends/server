@@ -1,86 +1,90 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 # Criends-server
+
+썸네일 추가 예정
+
+## Criends 배포 주소
+
+배포주소
+
+## 1. 아키텍처
+
+<details>
+<summary>프로덕션 환경에서의 아키텍처 보기</summary>
+
+추가예정
+
+</details>
+
+<details>
+<summary>개발 환경에서의 아키텍처 보기</summary>
+
+추가예정
+
+</details>
+
+## 2. 서비스 소개
+
+**Criends**
+
+## 3. 사용 기술 및 개발 환경
+
+
+
+## 4. 개발자
+
+| 프로필 | 깃허브                                      | 역할                                                                         |
+| --- | --- | --- |
+| 박상희 | [Sangddong](https://github.com/Sangddong)   | |
+| 이종환 |||
+
+## 5. 브랜치 전략
+
+### 브랜치 관리
+
+- main : 프로덕션 배포 브랜치
+- dev : 개발 환경용 브랜치
+- feat : 개별 기능 개발용 브랜치
+- hotfix : main 브랜치에서 발생한 버그를 수정하는 브랜치
+
+### 브랜치 작성 규칙
+
+- 브랜치 작성 규칙 : 태그/이슈번호\_변경사항-설명
+- 소문자로만 작성하며, 개조식 구문으로 작성
+- Ex) feat/11_implement-resume-logic
+
+### Commit Convention
+
+|   태그   |             설명              |
+| :------: | :---------------------------: |
+|   feat   |       새로운 기능 추가        |
+|   fix    |           버그 수정           |
+| refactor |         코드 리팩토링         |
+|   docs   |           문서 수정           |
+|  chore   |         기타 변경사항         |
+|   test   |          테스트 작성          |
+|    ci    | CI 구성 파일 및 스크립트 변경 |
+
+## 6. 주요 기능
+
+추가예정
+
+## 7. Sequence Diagram
+
+<details>
+<summary>로그인 처리 과정</summary>
+
+추가예정
+
+</details>
+
+<details>
+<summary>리소스 요청시 인증 및 인가</summary>
+
+추가예정
+
+</details>
+
+## 8. ERD
+
+![image](https://github.com/user-attachments/assets/cc848c71-2fce-4a79-84d9-e49d20fcdfac)
+
