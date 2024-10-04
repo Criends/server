@@ -3,7 +3,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -17,6 +16,7 @@ import {
   DSite,
   SortResume,
 } from './resume.dto';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class ResumeService {
@@ -52,7 +52,7 @@ export class ResumeService {
 
     switch (data.sort) {
       case SortResume.UPDATED_AT:
-        orderByField = { updatedAt: 'asc' };
+        orderByField = { updatedAt: 'desc' };
         break;
       case SortResume.LIKES:
         orderByField = { likes: 'desc' };
@@ -92,9 +92,7 @@ export class ResumeService {
   }
 
   //이력서 초기화
-  async resetResume(resumeId: string, userId: string) {
-    if (resumeId !== userId)
-      throw new UnauthorizedException('삭제 권한이 없습니다.');
+  async resetResume(userId: string) {
     const target: string[] = [
       'resumeInfo',
       'introduce',
@@ -171,7 +169,7 @@ export class ResumeService {
         return await this.prismaService.introduce.upsert({
           where: { id: value.id || 'undefined' },
           create: {
-            id: 'introduce' + value.index.toString() + userId,
+            id: 'introduce' + userId + '_' + nanoid(4),
             resumeId: userId,
             index: value.index,
             title: value.title,
@@ -200,7 +198,7 @@ export class ResumeService {
         return await this.prismaService.activity.upsert({
           where: { id: value.id || 'undefined' },
           create: {
-            id: 'activity' + value.index.toString() + userId,
+            id: 'activity' + userId + '_' + nanoid(4),
             resumeId: userId,
             index: value.index,
             title: value.title,
@@ -233,7 +231,7 @@ export class ResumeService {
         return await this.prismaService.certificate.upsert({
           where: { id: value.id ?? 'undefined' },
           create: {
-            id: 'certificate' + value.index + userId,
+            id: 'certificate' + userId + '_' + nanoid(4),
             resumeId: userId,
             index: value.index,
             name: value.name,
@@ -268,7 +266,7 @@ export class ResumeService {
         return await this.prismaService.career.upsert({
           where: { id: value.id || 'undefined' },
           create: {
-            id: 'career' + value.index.toString() + userId,
+            id: 'career' + userId + '_' + nanoid(4),
             resumeId: userId,
             index: value.index,
             company: value.company,
@@ -303,7 +301,7 @@ export class ResumeService {
         return await this.prismaService.site.upsert({
           where: { id: value.id || 'undefined' },
           create: {
-            id: 'site' + value.index.toString() + userId,
+            id: 'site' + userId + '_' + nanoid(4),
             resumeId: userId,
             index: value.index,
             title: value.title,
@@ -336,7 +334,7 @@ export class ResumeService {
             id: value.id ?? 'undefined',
           },
           create: {
-            id: 'additionalResume' + value.index.toString() + userId,
+            id: 'additionalResume' + userId + '_' + nanoid(4),
             resumeId: userId,
             index: value.index,
             title: value.title,
