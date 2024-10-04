@@ -48,17 +48,18 @@ export class ResumeService {
 
   //다수 이력서 조회
   async getAllResumes(data: DGetAllResumes) {
-    let orderByField: object;
+    const orderByField: object[] = [];
 
     switch (data.sort) {
       case SortResume.UPDATED_AT:
-        orderByField = { updatedAt: 'desc' };
+        orderByField.push({ updatedAt: 'desc' });
         break;
       case SortResume.LIKES:
-        orderByField = { likes: 'desc' };
+        orderByField.push({ likes: 'desc' }, { updatedAt: 'desc' });
         break;
-      default:
-        orderByField = { proposal: 'desc' };
+      case SortResume.PROPOSAL:
+        orderByField.push({ proposal: 'desc' }, { updatedAt: 'desc' });
+        break;
     }
 
     const resumes = await this.prismaService.resume.findMany({

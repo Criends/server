@@ -2,9 +2,9 @@ import { ExposeRange } from '@prisma/client';
 import { IsEnum } from 'class-validator';
 
 export enum SortResume {
-  'UPDATED_AT',
-  'PROPOSAL',
-  'LIKES',
+  UPDATED_AT = 'UPDATED_AT',
+  PROPOSAL = 'PROPOSAL',
+  LIKES = 'LIKES',
 }
 
 export class DResume {
