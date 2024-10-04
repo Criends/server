@@ -12,8 +12,8 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DPersonnelInfo,
   DResume,
-  DResumeInfo,
   DSite,
   SortResume,
 } from './resume.dto';
@@ -32,7 +32,7 @@ export class ResumeService {
         title: true,
         likes: true,
         proposal: true,
-        resumeInfo: true,
+        personnelInfo: true,
         introduce: { orderBy: { index: 'asc' } },
         activity: { orderBy: { index: 'asc' } },
         certificate: { orderBy: { index: 'asc' } },
@@ -133,12 +133,12 @@ export class ResumeService {
 
   //TODO: null로 인해 오류 발생! 수정 로직 필요
   // 이력서 개인정보 추가
-  async editResumeInfo(dto: DResumeInfo, userId: string) {
-    const existing = await this.prismaService.resumeInfo.findUnique({
+  async editPersonnelInfo(dto: DPersonnelInfo, userId: string) {
+    const existing = await this.prismaService.personnelInfo.findUnique({
       where: { id: dto.id },
     });
 
-    return await this.prismaService.resumeInfo.upsert({
+    return await this.prismaService.personnelInfo.upsert({
       where: { id: dto.id },
       create: {
         id: userId,

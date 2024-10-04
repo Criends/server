@@ -14,7 +14,7 @@ export class DResume {
   expose: ExposeRange;
   proposal?: number;
   updatedAt?: Date;
-  resumeInfo: DResumeInfo;
+  resumeInfo: DPersonnelInfo;
   introduce?: DIntroduce[];
   activity?: DActivity[];
   certificate?: DCertificate[];
@@ -23,7 +23,7 @@ export class DResume {
   additionalResume?: DAdditionalResume[];
 }
 
-export class DResumeInfo {
+export class DPersonnelInfo {
   id?: string;
   name?: string;
   email?: string;

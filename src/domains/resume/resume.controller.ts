@@ -15,8 +15,8 @@ import {
   DCertificate,
   DGetAllResumes,
   DIntroduce,
+  DPersonnelInfo,
   DResume,
-  DResumeInfo,
   DSite,
 } from './resume.dto';
 import { Guard } from 'src/decorators/guard.decorator';
@@ -47,8 +47,11 @@ export class ResumeController {
 
   @Guard('user')
   @Patch('personnel-info')
-  async editResumeInfo(@Body() dto: DResumeInfo, @DAccount('user') user: User) {
-    return await this.resumeService.editResumeInfo(dto, user.id);
+  async editResumeInfo(
+    @Body() dto: DPersonnelInfo,
+    @DAccount('user') user: User,
+  ) {
+    return await this.resumeService.editPersonnelInfo(dto, user.id);
   }
 
   @Guard('user')
