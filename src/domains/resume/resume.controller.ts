@@ -16,7 +16,7 @@ import {
   DGetAllResumes,
   DIntroduce,
   DPersonnelInfo,
-  DResume,
+  DResumeInfo,
   DSite,
 } from './resume.dto';
 import { Guard } from 'src/decorators/guard.decorator';
@@ -40,60 +40,47 @@ export class ResumeController {
   }
 
   @Guard('user')
-  @Patch('resume-info')
-  async editResume(@Body() dto: DResume, @DAccount('user') user: User) {
-    return await this.resumeService.editResume(dto, user.id);
-  }
-
-  @Guard('user')
-  @Patch('personnel-info')
-  async editResumeInfo(
-    @Body() dto: DPersonnelInfo,
+  @Patch(':branch')
+  async editInfo(
+    @Param('branch') branch: string,
+    @Body() dto: DResumeInfo | DPersonnelInfo,
     @DAccount('user') user: User,
   ) {
-    return await this.resumeService.editPersonnelInfo(dto, user.id);
+    return await this.resumeService.editInfo(branch, dto, user.id);
   }
 
   @Guard('user')
-  @Patch('introduce')
-  async editIntroduce(@Body() dto: DIntroduce[], @DAccount('user') user: User) {
-    return await this.resumeService.editIntroduce(dto, user.id);
-  }
-
-  @Guard('user')
-  @Patch('activity')
-  async editActivity(@Body() dto: DActivity[], @DAccount('user') user: User) {
-    return await this.resumeService.editActivity(dto, user.id);
-  }
-
-  @Guard('user')
-  @Patch('certificate')
-  async editCertificate(
-    @Body() dto: DCertificate[],
+  @Post(':branch')
+  async addItems(
+    @Param('branch') branch: string,
+    @Body()
+    dto:
+      | DIntroduce[]
+      | DActivity[]
+      | DCertificate[]
+      | DCareer[]
+      | DSite[]
+      | DAdditionalResume[],
     @DAccount('user') user: User,
   ) {
-    return await this.resumeService.editCertificate(dto, user.id);
+    return await this.resumeService.createItem(branch, dto, user.id);
   }
 
   @Guard('user')
-  @Patch('career')
-  async editCareer(@Body() dto: DCareer[], @DAccount('user') user: User) {
-    return await this.resumeService.editCareer(dto, user.id);
-  }
-
-  @Guard('user')
-  @Patch('site')
-  async editSite(@Body() dto: DSite[], @DAccount('user') user: User) {
-    return await this.resumeService.editSite(dto, user.id);
-  }
-
-  @Guard('user')
-  @Patch('additional')
-  async editAdditionalResume(
-    @Body() dto: DAdditionalResume[],
+  @Patch(':branch')
+  async editItems(
+    @Param('branch') branch: string,
+    @Body()
+    dto:
+      | DIntroduce[]
+      | DActivity[]
+      | DCertificate[]
+      | DCareer[]
+      | DSite[]
+      | DAdditionalResume[],
     @DAccount('user') user: User,
   ) {
-    return await this.resumeService.editAdditionalResume(dto, user.id);
+    return await this.resumeService.editItem(branch, dto, user.id);
   }
 
   @Guard('user')
@@ -109,7 +96,7 @@ export class ResumeController {
   }
 
   @Guard('user')
-  @Post(':id')
+  @Post(':id/like')
   async likeUnlikeResume(
     @Param('id') id: string,
     @DAccount('user') user: User,

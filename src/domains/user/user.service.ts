@@ -40,6 +40,16 @@ export class UserService {
       },
     });
 
+    await this.prismaService.personnelInfo.create({
+      data: {
+        resume: { connect: { id: id } },
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+      },
+    });
+
     return newUser;
   }
 
