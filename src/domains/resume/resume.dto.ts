@@ -23,6 +23,10 @@ export class DResume {
   additionalResume?: DAdditionalResume[];
 }
 
+export class DResumeInfo {
+  title?: string;
+  expose?: ExposeRange;
+}
 export class DPersonnelInfo {
   id?: string;
   name?: string;
