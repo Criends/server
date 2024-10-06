@@ -35,7 +35,7 @@
 | 프로필 | 깃허브                                      | 역할                                                                         |
 | --- | --- | --- |
 | 박상희 | [Sangddong](https://github.com/Sangddong)   | |
-| 이종환 |||
+| 이종환 | [hwanieo](https://github.com/hwanieo) ||
 
 ## 5. 브랜치 전략
 
