@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -445,7 +446,7 @@ export class ResumeService {
 
   async likeUnlikeResume(resumeId: string, userId: string) {
     if (resumeId === userId)
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         '본인의 이력서에는 좋아요를 누를 수 없습니다.',
       );
 
@@ -453,30 +454,25 @@ export class ResumeService {
       where: { userId_resumeId: { userId, resumeId } },
     });
 
+    let likesLogic = {};
+
     if (!check) {
-      await this.prismaService.resume.update({
-        where: { id: resumeId },
-        data: {
-          likes: {
-            increment: 1,
-          },
-        },
-      });
-      return await this.prismaService.likeResume.create({
+      likesLogic = { increment: 1 };
+      await this.prismaService.likeResume.create({
         data: { resumeId: resumeId, userId: userId },
       });
     } else {
-      await this.prismaService.resume.update({
-        where: { id: resumeId },
-        data: {
-          likes: {
-            decrement: 1,
-          },
-        },
-      });
-      return await this.prismaService.likeResume.delete({
+      likesLogic = { decrement: 1 };
+      await this.prismaService.likeResume.delete({
         where: { userId_resumeId: { userId, resumeId } },
       });
     }
+
+    await this.prismaService.resume.update({
+      where: { id: resumeId },
+      data: {
+        likes: likesLogic,
+      },
+    });
   }
 }

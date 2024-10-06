@@ -148,7 +148,7 @@ export class ResumeController {
   }
 
   @Guard('user')
-  @Post(':id')
+  @Post(':id/like')
   async likeUnlikeResume(
     @Param('id') id: string,
     @DAccount('user') user: User,
