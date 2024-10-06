@@ -16,7 +16,6 @@ import {
   DGetAllResumes,
   DIntroduce,
   DPersonnelInfo,
-  DResume,
   DResumeInfo,
   DSite,
 } from './resume.dto';
@@ -49,15 +48,6 @@ export class ResumeController {
   ) {
     return await this.resumeService.editInfo(branch, dto, user.id);
   }
-
-  // @Guard('user')
-  // @Patch('personnel-info')
-  // async editResumeInfo(
-  //   @Body() dto: DPersonnelInfo,
-  //   @DAccount('user') user: User,
-  // ) {
-  //   return await this.resumeService.editPersonnelInfo(dto, user.id);
-  // }
 
   @Guard('user')
   @Post(':branch')
@@ -92,48 +82,6 @@ export class ResumeController {
   ) {
     return await this.resumeService.editItem(branch, dto, user.id);
   }
-
-  // @Guard('user')
-  // @Patch('introduce')
-  // async editIntroduce(@Body() dto: DIntroduce[], @DAccount('user') user: User) {
-  //   return await this.resumeService.editIntroduce(dto, user.id);
-  // }
-
-  // @Guard('user')
-  // @Patch('activity')
-  // async editActivity(@Body() dto: DActivity[], @DAccount('user') user: User) {
-  //   return await this.resumeService.editActivity(dto, user.id);
-  // }
-
-  // @Guard('user')
-  // @Patch('certificate')
-  // async editCertificate(
-  //   @Body() dto: DCertificate[],
-  //   @DAccount('user') user: User,
-  // ) {
-  //   return await this.resumeService.editCertificate(dto, user.id);
-  // }
-
-  // @Guard('user')
-  // @Patch('career')
-  // async editCareer(@Body() dto: DCareer[], @DAccount('user') user: User) {
-  //   return await this.resumeService.editCareer(dto, user.id);
-  // }
-
-  // @Guard('user')
-  // @Patch('site')
-  // async editSite(@Body() dto: DSite[], @DAccount('user') user: User) {
-  //   return await this.resumeService.editSite(dto, user.id);
-  // }
-
-  // @Guard('user')
-  // @Patch('additional')
-  // async editAdditionalResume(
-  //   @Body() dto: DAdditionalResume[],
-  //   @DAccount('user') user: User,
-  // ) {
-  //   return await this.resumeService.editAdditionalResume(dto, user.id);
-  // }
 
   @Guard('user')
   @Delete(':id')
