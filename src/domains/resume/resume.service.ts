@@ -203,27 +203,16 @@ export class ResumeService {
     );
   }
 
-  classifyItem(target: string) {
-    let result: string;
-    if (target.startsWith('introduce')) {
-      result = 'introduce';
-    } else if (target.startsWith('activity')) {
-      result = 'activity';
-    } else if (target.startsWith('certificate')) {
-      result = 'certificate';
-    } else if (target.startsWith('career')) {
-      result = 'career';
-    } else if (target.startsWith('site')) {
-      result = 'site';
-    } else if (target.startsWith('additional')) {
-      result = 'additionalResume';
-    } else if (target.startsWith('personnel-info')) {
-      result = 'personnelInfo';
-    } else if (target.startsWith('resume-info')) {
-      result = 'resume';
-    } else throw new BadRequestException('존재하지 않는 항목입니다.');
-
-    return result;
+  classifyItem(target: string): string {
+    if (target.startsWith('introduce')) return 'introduce';
+    else if (target.startsWith('activity')) return 'activity';
+    else if (target.startsWith('certificate')) return 'certificate';
+    else if (target.startsWith('career')) return 'career';
+    else if (target.startsWith('site')) return 'site';
+    else if (target.startsWith('additional')) return 'additionalResume';
+    else if (target.startsWith('personnel-info')) return 'personnelInfo';
+    else if (target.startsWith('resume-info')) return 'resume';
+    else throw new BadRequestException('존재하지 않는 항목입니다.');
   }
 
   async updateUpdatedAt(userId: string) {
