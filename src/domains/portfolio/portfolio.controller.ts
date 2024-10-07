@@ -55,7 +55,20 @@ export class PortfolioController {
 
   // 프로젝트 정보 수정
   @Patch(':projectId')
-  async editProject() {}
+  async editProject(
+    @Param('branch') branch: string,
+    @Body()
+    dto:
+      | DAdditionalPortfolio[]
+      | DContribution[]
+      | DProjectSite[]
+      | DSkill[]
+      | DTeam[]
+      | DTroubleShooting[],
+    @DAccount('user') user: User,
+  ) {
+    return await this.portfolioService.editItem(branch, dto, user.id);
+  }
 
   // 프로젝트 아이템 수정
   @Patch('item/:branch')

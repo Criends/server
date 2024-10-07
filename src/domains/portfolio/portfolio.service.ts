@@ -96,6 +96,32 @@ export class PortfolioService {
     );
   }
 
+  async editItem(
+    branch: string,
+    dto:
+      | DAdditionalPortfolio[]
+      | DContribution[]
+      | DProjectSite[]
+      | DSkill[]
+      | DTeam[]
+      | DTroubleShooting[],
+    userId: string,
+  ) {
+    const target = this.classifyBranch(branch);
+
+    return await Promise.all(
+      dto.map(async (value) => {
+        return await this.prismaService[target].update({
+          data: {
+            id: target + nanoid(4) + userId,
+            project: { connect: { id: userId } },
+            ...value,
+          },
+        });
+      }),
+    );
+  }
+
   classifyBranch(target: string): string {
     if (target.startsWith('team')) return 'team';
     else if (target.startsWith('skill')) return 'skill';
