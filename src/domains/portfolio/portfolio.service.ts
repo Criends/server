@@ -123,7 +123,6 @@ export class PortfolioService {
       | DSkill[]
       | DTeam[]
       | DTroubleShooting[],
-    userId: string,
   ) {
     const target = this.classifyBranch(branch);
 

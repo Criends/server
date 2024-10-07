@@ -72,7 +72,6 @@ export class PortfolioController {
     return await this.portfolioService.createItem(branch, dto, user.id);
   }
 
-  // 프로젝트 정보 수정
   @Guard('user')
   @Patch('item/:branch')
   async editProject(
@@ -85,17 +84,19 @@ export class PortfolioController {
       | DSkill[]
       | DTeam[]
       | DTroubleShooting[],
-    @DAccount('user') user: User,
   ) {
-    return await this.portfolioService.editItem(branch, dto, user.id);
+    return await this.portfolioService.editItem(branch, dto);
+  }
+
+  @Guard('user')
+  @Delete('item/:id')
+  async deleteItem(@Param('id') id: string, @DAccount('user') user: User) {
+    return this.portfolioService.deleteItem(id, user.id);
   }
 
   @Guard('user')
   @Delete(':id')
-  async deleteItem(@Param('id') id: string, @DAccount('user') user: User) {
-    return this.portfolioService.deleteItem(id, user.id);
+  async resetPortfolio(@Param('id') id: string, @DAccount('user') user: User) {
+    await this.portfolioService.resetPortfolio(id, user.id);
   }
-  // 프로젝트 아이템 수정
-  @Patch(':projectId')
-  async editProjectItem() {}
 }
