@@ -33,7 +33,7 @@ export class PortfolioController {
 
   @Guard(['user', 'company'])
   @Get(':id')
-  async getPortfolio(@Param('id') id: string) {
+  async getPortfolio(@Param('id') id: string, @DAccount('user') user: User) {
     return await this.portfolioService.getPortfolio(id);
   }
 
@@ -47,17 +47,18 @@ export class PortfolioController {
   @Guard('user')
   @Patch(':projectId')
   async editProjectInfo(
-    @Param('id') id: string,
+    @Param('projectId') projectId: string,
     @Body() dto: DProjectInfo,
     @DAccount('user') user: User,
   ) {
-    return await this.portfolioService.editProjectInfo(id, dto, user.id);
+    return await this.portfolioService.editProjectInfo(projectId, dto, user.id);
   }
 
   //프로젝트에 팀/스킬/사이트/정보/기여/트러블슈팅/추가사항 추가
   @Guard('user')
-  @Post(':projectId')
+  @Post(':projectId/:branch')
   async addItem(
+    @Param('projectId') projectId: string,
     @Param('branch') branch: string,
     @Body()
     dto:
@@ -69,13 +70,18 @@ export class PortfolioController {
       | DTroubleShooting[],
     @DAccount('user') user: User,
   ) {
-    return await this.portfolioService.createItem(branch, dto, user.id);
+    return await this.portfolioService.createItem(
+      projectId,
+      branch,
+      dto,
+      user.id,
+    );
   }
 
   @Guard('user')
-  @Patch('item/:branch')
-  async editProject(
-    @Param('branch') branch: string,
+  @Patch('item/:id')
+  async editItem(
+    @Param('id') id: string,
     @Body()
     dto:
       | DAdditionalPortfolio[]
@@ -84,8 +90,18 @@ export class PortfolioController {
       | DSkill[]
       | DTeam[]
       | DTroubleShooting[],
+    @DAccount('user') user: User,
   ) {
-    return await this.portfolioService.editItem(branch, dto);
+    return await this.portfolioService.editItem(id, dto, user.id);
+  }
+
+  @Guard('user')
+  @Delete(':projectId')
+  async deleteProject(
+    @Param('projectId') projectId: string,
+    @DAccount('user') user: User,
+  ) {
+    return this.portfolioService.deleteProject(projectId, user.id);
   }
 
   @Guard('user')
@@ -95,8 +111,8 @@ export class PortfolioController {
   }
 
   @Guard('user')
-  @Delete(':id')
-  async resetPortfolio(@Param('id') id: string, @DAccount('user') user: User) {
-    await this.portfolioService.resetPortfolio(id, user.id);
+  @Delete('reset')
+  async resetPortfolio(@DAccount('user') user: User) {
+    await this.portfolioService.resetPortfolio(user.id);
   }
 }

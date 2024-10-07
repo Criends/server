@@ -1,68 +1,68 @@
 export class DProject {
-  id: string;
-  title: string;
-  content: string;
-  startDate: string;
-  endDate: string;
-  repImages: string;
-  team: DTeam[];
-  skills: DSkill[];
-  contributions: DContribution[];
-  troubleShootings: DTroubleShooting[];
-  additionalPortfolios: DAdditionalPortfolio[];
+  id?: string;
+  title?: string;
+  content?: string;
+  startDate?: string;
+  endDate?: string;
+  repImages?: string;
+  team?: DTeam[];
+  skills?: DSkill[];
+  contributions?: DContribution[];
+  troubleShootings?: DTroubleShooting[];
+  additionalPortfolios?: DAdditionalPortfolio[];
 }
 export class DProjectInfo {
   title?: string;
-  content: string;
-  startDate: string;
-  endDate: string;
-  repImages: string;
+  content?: string;
+  startDate?: string;
+  endDate?: string;
+  repImages?: string;
 }
 
 export class DTeam {
-  id: string;
-  index: number;
-  projectId: string;
-  role: string;
-  headCount: number;
+  id?: string;
+  projectId?: string;
+  index?: number;
+  role?: string;
+  headCount?: number;
 }
 
 export class DSkill {
-  id: string;
-  index: number;
-  projectId: string;
-  position: string;
-  content: string;
+  id?: string;
+  projectId?: string;
+  index?: number;
+  position?: string;
+  content?: string;
 }
 
 export class DProjectSite {
-  id: string;
-  index: number;
-  projectId: string;
-  site: string;
-  url: string;
+  id?: string;
+  projectId?: string;
+  index?: number;
+  site?: string;
+  url?: string;
 }
 
 export class DContribution {
-  id: string;
-  index: number;
-  projectId: string;
-  contribution: string;
-  content: string;
+  id?: string;
+  projectId?: string;
+  index?: number;
+  contribution?: string;
+  content?: string;
 }
 
 export class DTroubleShooting {
-  id: string;
-  index: number;
-  projectId: string;
-  trouble: string;
-  content: string;
+  id?: string;
+  projectId?: string;
+  index?: number;
+  trouble?: string;
+  content?: string;
 }
 
 export class DAdditionalPortfolio {
-  id: string;
-  index: number;
-  projectId: string;
-  title: string;
-  content: string;
+  id?: string;
+  projectId?: string;
+  index?: number;
+  title?: string;
+  content?: string;
 }

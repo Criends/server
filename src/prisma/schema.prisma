@@ -198,10 +198,10 @@ model Portfolio {
 }
 
 model Project {
-  id                  String                @id
+  id                  String                @id @unique
   index               Int
   portfolio           Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  portfolioId         String                @unique
+  portfolioId         String
   title               String
   content             String
   startDate           String
@@ -244,7 +244,7 @@ model ProjectSite {
 
 model Contribution {
   id           String  @id
-  project      Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  project      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   index        Int
   projectId    String
   contribution String
@@ -253,16 +253,16 @@ model Contribution {
 
 model TroubleShooting {
   id        String  @id
-  project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   index     Int
-  projectId String  @unique
+  projectId String
   trouble   String
   content   String?
 }
 
 model AdditionalPortfolio {
   id        String  @id
-  project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   index     Int
   projectId String
   title     String

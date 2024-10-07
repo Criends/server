@@ -50,9 +50,24 @@ export class PortfolioService {
           select: {
             id: true,
             index: true,
-            contribution: true,
-            troubleShooting: true,
-            additionalPortfolio: true,
+            team: {
+              orderBy: { index: 'asc' },
+            },
+            skill: {
+              orderBy: { index: 'asc' },
+            },
+            projectSite: {
+              orderBy: { index: 'asc' },
+            },
+            contribution: {
+              orderBy: { index: 'asc' },
+            },
+            troubleShooting: {
+              orderBy: { index: 'asc' },
+            },
+            additionalPortfolio: {
+              orderBy: { index: 'asc' },
+            },
           },
           orderBy: {
             index: 'asc',
@@ -63,10 +78,16 @@ export class PortfolioService {
   }
 
   async createProject(userId: string) {
+    await this.updateUpdatedAt(userId);
+
+    const index = await this.prismaService.project.count({
+      where: { portfolioId: userId },
+    });
+
     return await this.prismaService.project.create({
       data: {
         id: nanoid(4) + '_' + userId,
-        index: 0,
+        index: index,
         title: '',
         content: '',
         startDate: '',
@@ -77,18 +98,20 @@ export class PortfolioService {
 
   async editProjectInfo(id: string, dto: DProjectInfo, userId: string) {
     try {
+      await this.updateUpdatedAt(userId);
       return await this.prismaService.project.update({
         where: { id: id },
         data: { ...dto },
       });
     } catch {
-      if (id.split('', 12)[0] !== userId)
-        throw new UnauthorizedException('권한이 없습니다.');
+      if (id.slice(5, 13) !== userId)
+        throw new UnauthorizedException('삭제 권한이 없습니다.');
       throw new NotFoundException('존재하지 않는 항목입니다.');
     }
   }
 
   async createItem(
+    projectId: string,
     branch: string,
     dto:
       | DAdditionalPortfolio[]
@@ -101,12 +124,14 @@ export class PortfolioService {
   ) {
     const target = this.classifyBranch(branch);
 
+    await this.updateUpdatedAt(userId);
+
     return await Promise.all(
       dto.map(async (value) => {
         return await this.prismaService[target].create({
           data: {
             id: target + nanoid(4) + userId,
-            project: { connect: { id: userId } },
+            project: { connect: { id: projectId } },
             ...value,
           },
         });
@@ -123,8 +148,11 @@ export class PortfolioService {
       | DSkill[]
       | DTeam[]
       | DTroubleShooting[],
+    userId: string,
   ) {
     const target = this.classifyBranch(branch);
+
+    await this.updateUpdatedAt(userId);
 
     return await Promise.all(
       dto.map(async (value) => {
@@ -138,16 +166,26 @@ export class PortfolioService {
     );
   }
 
+  async deleteProject(id: string, userId: string) {
+    if (id.slice(5, 13) !== userId)
+      throw new UnauthorizedException('삭제 권한이 없습니다.');
+    try {
+      await this.updateUpdatedAt(userId);
+      await this.prismaService.project.delete({ where: { id: id } });
+    } catch {
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
+  }
   async deleteItem(id: string, userId: string) {
-    const target = this.classifyBranch(id.split('', 12)[0]);
-    console.log(target);
+    const target = this.classifyBranch(id);
 
     try {
-      return await this.prismaService[target].delete({
-        where: { id: id, projectId: userId },
+      await this.updateUpdatedAt(userId);
+      await this.prismaService[target].delete({
+        where: { id: id },
       });
     } catch {
-      if (id.split('', 12)[0] !== userId)
+      if (id.slice(id.length - 8, 50) !== userId)
         throw new UnauthorizedException('권한이 없습니다.');
       throw new NotFoundException('존재하지 않는 항목입니다.');
     }
@@ -157,16 +195,28 @@ export class PortfolioService {
     if (target.startsWith('team')) return 'team';
     else if (target.startsWith('skill')) return 'skill';
     else if (target.startsWith('project-site')) return 'projectSite';
+    else if (target.startsWith('projectSite')) return 'projectSite';
     else if (target.startsWith('contribution')) return 'contribution';
     else if (target.startsWith('trouble-shooting')) return 'troubleShooting';
+    else if (target.startsWith('troubleShooting')) return 'troubleShooting';
     else if (target.startsWith('additional-portfolio'))
+      return 'additionalPortfolio';
+    else if (target.startsWith('additionalPortfolio'))
       return 'additionalPortfolio';
     else throw new BadRequestException('존재하지 않는 항목입니다.');
   }
 
-  async resetPortfolio(id: string, userId: string) {
+  async resetPortfolio(userId: string) {
+    await this.updateUpdatedAt(userId);
     return await this.prismaService.project.deleteMany({
-      where: { id: id, portfolioId: userId },
+      where: { portfolioId: userId },
+    });
+  }
+
+  async updateUpdatedAt(id: string) {
+    await this.prismaService.portfolio.update({
+      where: { id: id },
+      data: { updatedAt: new Date() },
     });
   }
 }
