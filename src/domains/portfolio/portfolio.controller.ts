@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { Guard } from 'src/decorators/guard.decorator';
 import { DGetAllResumes } from '../resume/resume.dto';
@@ -54,7 +62,8 @@ export class PortfolioController {
   }
 
   // 프로젝트 정보 수정
-  @Patch(':projectId')
+  @Guard('user')
+  @Patch('item/:branch')
   async editProject(
     @Param('branch') branch: string,
     @Body()
@@ -70,7 +79,12 @@ export class PortfolioController {
     return await this.portfolioService.editItem(branch, dto, user.id);
   }
 
+  @Guard('user')
+  @Delete(':id')
+  async deleteItem(@Param('id') id: string, @DAccount('user') user: User) {
+    return this.portfolioService.deleteItem(id, user.id);
+  }
   // 프로젝트 아이템 수정
-  @Patch('item/:branch')
+  @Patch(':projectId')
   async editProjectItem() {}
 }

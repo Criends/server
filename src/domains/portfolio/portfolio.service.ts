@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DGetAllResumes, SortResume } from '../resume/resume.dto';
 import { nanoid } from 'nanoid';
@@ -10,7 +15,6 @@ import {
   DTeam,
   DTroubleShooting,
 } from './portfolio.dto';
-import { connect } from 'http2';
 
 @Injectable()
 export class PortfolioService {
@@ -112,14 +116,28 @@ export class PortfolioService {
     return await Promise.all(
       dto.map(async (value) => {
         return await this.prismaService[target].update({
+          where: { id: branch },
           data: {
-            id: target + nanoid(4) + userId,
-            project: { connect: { id: userId } },
             ...value,
           },
         });
       }),
     );
+  }
+
+  async deleteItem(id: string, userId: string) {
+    const target = this.classifyBranch(id.split('', 12)[0]);
+    console.log(target);
+
+    try {
+      return await this.prismaService[target].delete({
+        where: { id: id, projectId: userId },
+      });
+    } catch {
+      if (id.split('', 12)[0] !== userId)
+        throw new UnauthorizedException('권한이 없습니다.');
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
   }
 
   classifyBranch(target: string): string {
