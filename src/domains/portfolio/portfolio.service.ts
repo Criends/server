@@ -97,6 +97,9 @@ export class PortfolioService {
   }
 
   async editProjectInfo(id: string, dto: DProjectInfo, userId: string) {
+    if (id.slice(5, 13) !== userId)
+      throw new UnauthorizedException('삭제 권한이 없습니다.');
+
     try {
       await this.updateUpdatedAt(userId);
       return await this.prismaService.project.update({
@@ -104,8 +107,6 @@ export class PortfolioService {
         data: { ...dto },
       });
     } catch {
-      if (id.slice(5, 13) !== userId)
-        throw new UnauthorizedException('삭제 권한이 없습니다.');
       throw new NotFoundException('존재하지 않는 항목입니다.');
     }
   }
@@ -157,7 +158,7 @@ export class PortfolioService {
     return await Promise.all(
       dto.map(async (value) => {
         return await this.prismaService[target].update({
-          where: { id: branch },
+          where: { id: value.id },
           data: {
             ...value,
           },
@@ -176,6 +177,7 @@ export class PortfolioService {
       throw new NotFoundException('존재하지 않는 항목입니다.');
     }
   }
+
   async deleteItem(id: string, userId: string) {
     const target = this.classifyBranch(id);
 
@@ -194,13 +196,12 @@ export class PortfolioService {
   classifyBranch(target: string): string {
     if (target.startsWith('team')) return 'team';
     else if (target.startsWith('skill')) return 'skill';
-    else if (target.startsWith('project-site')) return 'projectSite';
+    else if (target.startsWith('site')) return 'projectSite';
     else if (target.startsWith('projectSite')) return 'projectSite';
     else if (target.startsWith('contribution')) return 'contribution';
-    else if (target.startsWith('trouble-shooting')) return 'troubleShooting';
+    else if (target.startsWith('trouble')) return 'troubleShooting';
     else if (target.startsWith('troubleShooting')) return 'troubleShooting';
-    else if (target.startsWith('additional-portfolio'))
-      return 'additionalPortfolio';
+    else if (target.startsWith('additional')) return 'additionalPortfolio';
     else if (target.startsWith('additionalPortfolio'))
       return 'additionalPortfolio';
     else throw new BadRequestException('존재하지 않는 항목입니다.');

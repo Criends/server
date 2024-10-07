@@ -79,9 +79,9 @@ export class PortfolioController {
   }
 
   @Guard('user')
-  @Patch('item/:id')
+  @Patch('item/:branch')
   async editItem(
-    @Param('id') id: string,
+    @Param('branch') branch: string,
     @Body()
     dto:
       | DAdditionalPortfolio[]
@@ -92,7 +92,7 @@ export class PortfolioController {
       | DTroubleShooting[],
     @DAccount('user') user: User,
   ) {
-    return await this.portfolioService.editItem(id, dto, user.id);
+    return await this.portfolioService.editItem(branch, dto, user.id);
   }
 
   @Guard('user')

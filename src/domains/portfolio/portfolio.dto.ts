@@ -11,6 +11,7 @@ export class DProject {
   troubleShootings?: DTroubleShooting[];
   additionalPortfolios?: DAdditionalPortfolio[];
 }
+
 export class DProjectInfo {
   title?: string;
   content?: string;
