@@ -40,7 +40,7 @@ export class ResumeController {
   }
 
   @Guard('user')
-  @Patch(':branch')
+  @Patch('info/:branch')
   async editInfo(
     @Param('branch') branch: string,
     @Body() dto: DResumeInfo | DPersonnelInfo,
@@ -67,7 +67,7 @@ export class ResumeController {
   }
 
   @Guard('user')
-  @Patch(':branch')
+  @Patch('item/:branch')
   async editItems(
     @Param('branch') branch: string,
     @Body()

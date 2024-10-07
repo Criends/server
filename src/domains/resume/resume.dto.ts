@@ -39,9 +39,9 @@ export class DPersonnelInfo {
 export class DIntroduce {
   id?: string;
   resumeId?: string;
-  index: number;
-  title: string;
-  content: string;
+  index?: number;
+  title?: string;
+  content?: string;
 }
 
 export class DActivity {

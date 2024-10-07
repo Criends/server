@@ -81,7 +81,9 @@ export class ResumeService {
         where: { id: itemId, resumeId: userId },
       });
     } catch {
-      throw new BadRequestException('권한이 없거나 존재하지 않는 항목입니다.');
+      if (itemId.endsWith(userId))
+        throw new NotFoundException('존재하지 않는 항목입니다.');
+      else throw new UnauthorizedException('권한이 없습니다.');
     }
   }
 
@@ -133,9 +135,9 @@ export class ResumeService {
   ) {
     const target = this.classifyItem(branch);
 
-    this.updateUpdatedAt(userId);
+    await this.updateUpdatedAt(userId);
 
-    await this.prismaService[target].update({
+    return await this.prismaService[target].update({
       where: { id: userId },
       data: {
         ...dto,
@@ -156,11 +158,11 @@ export class ResumeService {
   ) {
     const target = this.classifyItem(branch);
 
-    this.updateUpdatedAt(userId);
+    await this.updateUpdatedAt(userId);
 
-    await Promise.all(
+    return await Promise.all(
       dto.map(async (value) => {
-        await this.prismaService[target].create({
+        return await this.prismaService[target].create({
           data: {
             id: target + nanoid(4) + userId,
             resumeId: userId,
@@ -184,21 +186,20 @@ export class ResumeService {
   ) {
     const target = this.classifyItem(branch);
 
-    this.updateUpdatedAt(userId);
+    await this.updateUpdatedAt(userId);
 
-    await Promise.all(
+    return await Promise.all(
       dto.map(async (value) => {
-        const existing = await this.prismaService[target].findUnique({
-          where: { id: value.id },
-        });
-
-        if (!existing)
-          throw new NotFoundException(value, '는 존재하지 않는 항목입니다.');
-
-        await this.prismaService[target].update({
-          where: { id: value.id },
-          data: { ...value },
-        });
+        try {
+          return await this.prismaService[target].update({
+            where: { id: value.id },
+            data: { ...value },
+          });
+        } catch {
+          if (value.endsWith(userId))
+            throw new NotFoundException('존재하지 않는 항목입니다.');
+          else throw new UnauthorizedException('권한이 없습니다.');
+        }
       }),
     );
   }
