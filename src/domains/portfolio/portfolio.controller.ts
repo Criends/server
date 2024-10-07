@@ -15,6 +15,7 @@ import { User } from '@prisma/client';
 import {
   DAdditionalPortfolio,
   DContribution,
+  DProjectInfo,
   DProjectSite,
   DSkill,
   DTeam,
@@ -41,6 +42,16 @@ export class PortfolioController {
   @Post()
   async addProject(@DAccount('user') user: User) {
     return await this.portfolioService.createProject(user.id);
+  }
+
+  @Guard('user')
+  @Post(':projectId')
+  async editProjectInfo(
+    @Param('id') id: string,
+    @Body() dto: DProjectInfo,
+    @DAccount('user') user: User,
+  ) {
+    return await this.portfolioService.editProjectInfo(id, dto, user.id);
   }
 
   //프로젝트에 팀/스킬/사이트/정보/기여/트러블슈팅/추가사항 추가

@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid';
 import {
   DAdditionalPortfolio,
   DContribution,
+  DProjectInfo,
   DProjectSite,
   DSkill,
   DTeam,
@@ -72,6 +73,19 @@ export class PortfolioService {
         portfolio: { connect: { id: userId } },
       },
     });
+  }
+
+  async editProjectInfo(id: string, dto: DProjectInfo, userId: string) {
+    try {
+      return await this.prismaService.project.update({
+        where: { id: id },
+        data: { ...dto },
+      });
+    } catch {
+      if (id.split('', 12)[0] !== userId)
+        throw new UnauthorizedException('권한이 없습니다.');
+      throw new NotFoundException('존재하지 않는 항목입니다.');
+    }
   }
 
   async createItem(
