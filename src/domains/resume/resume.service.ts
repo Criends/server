@@ -81,7 +81,7 @@ export class ResumeService {
         where: { id: itemId, resumeId: userId },
       });
     } catch {
-      if (itemId.startsWith(userId))
+      if (itemId.endsWith(userId))
         throw new NotFoundException('존재하지 않는 항목입니다.');
       else throw new UnauthorizedException('권한이 없습니다.');
     }
@@ -186,7 +186,7 @@ export class ResumeService {
   ) {
     const target = this.classifyItem(branch);
 
-    this.updateUpdatedAt(userId);
+    await this.updateUpdatedAt(userId);
 
     return await Promise.all(
       dto.map(async (value) => {
@@ -196,12 +196,9 @@ export class ResumeService {
             data: { ...value },
           });
         } catch {
-          const existing = await this.prismaService[target].findUnique({
-            where: { id: value.id },
-          });
-
-          if (!existing)
-            throw new NotFoundException(value, '는 존재하지 않는 항목입니다.');
+          if (value.endsWith(userId))
+            throw new NotFoundException('존재하지 않는 항목입니다.');
+          else throw new UnauthorizedException('권한이 없습니다.');
         }
       }),
     );
