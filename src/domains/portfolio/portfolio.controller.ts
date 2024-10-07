@@ -45,7 +45,7 @@ export class PortfolioController {
   }
 
   @Guard('user')
-  @Post(':projectId')
+  @Patch(':projectId')
   async editProjectInfo(
     @Param('id') id: string,
     @Body() dto: DProjectInfo,

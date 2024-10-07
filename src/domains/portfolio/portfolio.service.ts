@@ -164,4 +164,10 @@ export class PortfolioService {
       return 'additionalPortfolio';
     else throw new BadRequestException('존재하지 않는 항목입니다.');
   }
+
+  async resetPortfolio(id: string, userId: string) {
+    return await this.prismaService.project.deleteMany({
+      where: { id: id, portfolioId: userId },
+    });
+  }
 }
