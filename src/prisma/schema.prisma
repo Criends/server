@@ -188,11 +188,13 @@ model LikeResume {
 }
 
 model Portfolio {
-  id      String          @id
-  user    User            @relation(fields: [id], references: [id], onDelete: Cascade)
-  project Project[]
-  expose  ExposeRange     @default(SECRET)
-  liked   LikePortfolio[]
+  id        String          @id
+  user      User            @relation(fields: [id], references: [id], onDelete: Cascade)
+  project   Project[]
+  expose    ExposeRange     @default(SECRET)
+  liked     LikePortfolio[]
+  updatedAt DateTime        @default(now()) @updatedAt
+  likes     Int             @default(0)
 }
 
 model Project {
@@ -200,23 +202,17 @@ model Project {
   index               Int
   portfolio           Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   portfolioId         String                @unique
+  title               String
+  content             String
+  startDate           String
+  endDate             String?
+  repImages           String?
   team                Team[]
   skill               Skill[]
   projectSite         ProjectSite[]
-  projectInfo         ProjectInfo?
   contribution        Contribution[]
   troubleShooting     TroubleShooting[]
   additionalPortfolio AdditionalPortfolio[]
-}
-
-model ProjectInfo {
-  project       Project @relation(fields: [projectInfoId], references: [portfolioId], onDelete: Cascade)
-  projectInfoId String  @unique
-  title         String
-  content       String
-  startDate     String
-  endDate       String?
-  repImages     String?
 }
 
 model Team {
@@ -233,6 +229,8 @@ model Skill {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   index     Int
   projectId String
+  position  String
+  content   String
 }
 
 model ProjectSite {
@@ -240,6 +238,8 @@ model ProjectSite {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   index     Int
   projectId String
+  site      String
+  url       String
 }
 
 model Contribution {
@@ -265,6 +265,8 @@ model AdditionalPortfolio {
   project   Project @relation(fields: [projectId], references: [portfolioId], onDelete: Cascade)
   index     Int
   projectId String
+  title     String
+  content   String
 }
 
 model LikePortfolio {
