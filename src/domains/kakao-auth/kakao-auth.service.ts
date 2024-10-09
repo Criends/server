@@ -37,12 +37,4 @@ export class KakaoAuthService {
 
     return response.data.access_token;
   }
-
-  async createUser(kakaoId: string) {
-    return this.prismaService.user.create({
-      data: {
-        id: kakaoId,
-      },
-    });
-  }
 }
