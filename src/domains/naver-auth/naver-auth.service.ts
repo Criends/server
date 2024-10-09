@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class NaverAuthService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly configService: ConfigService) {}
 
   private readonly clientId: string = this.configService.get('N_CLIENT_ID');
   private readonly clientSecret: string =

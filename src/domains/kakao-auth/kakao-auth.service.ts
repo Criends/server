@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class KakaoAuthService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly configService: ConfigService) {}
 
   private readonly restApiKey: string =
     this.configService.get('K_REST_API_KEY');

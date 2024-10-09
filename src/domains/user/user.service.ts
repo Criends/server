@@ -62,6 +62,12 @@ export class UserService {
     return checkEmail;
   }
 
+  async getUserById(id: string) {
+    return await this.prismaService.user.findFirst({
+      where: { id: id },
+    });
+  }
+
   async createUser(socialId: string) {
     return this.prismaService.user.create({
       data: {
