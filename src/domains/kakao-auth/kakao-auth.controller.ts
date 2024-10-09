@@ -26,9 +26,7 @@ export class KakaoAuthController {
       },
     });
 
-    const newUser = await this.kakaoAuthService.createUser(
-      userInfo.data.id.toString(),
-    );
+    await this.kakaoAuthService.createUser(userInfo.data.id.toString());
 
     return res.send({ accessToken });
   }
