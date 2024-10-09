@@ -10,6 +10,7 @@ import { AuthModule } from './domains/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ResumeModule } from './domains/resume/resume.module';
 import { PortfolioModule } from './domains/portfolio/portfolio.module';
+import { KakaoAuthModule } from './domains/kakao-auth/kakao-auth.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PortfolioModule } from './domains/portfolio/portfolio.module';
     }),
     ResumeModule,
     PortfolioModule,
+    KakaoAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
