@@ -24,7 +24,7 @@ export class KakaoAuthService {
     const params = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: this.restApiKey,
-      redirect_id: this.redirectUri,
+      redirect_uri: this.redirectUri,
       code,
     });
     const header = {

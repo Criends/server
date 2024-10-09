@@ -11,6 +11,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ResumeModule } from './domains/resume/resume.module';
 import { PortfolioModule } from './domains/portfolio/portfolio.module';
 import { KakaoAuthModule } from './domains/kakao-auth/kakao-auth.module';
+import { NaverAuthModule } from './domains/naver-auth/naver-auth.module';
+import { GoogleAuthModule } from './domains/google-auth/google-auth.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { KakaoAuthModule } from './domains/kakao-auth/kakao-auth.module';
     ResumeModule,
     PortfolioModule,
     KakaoAuthModule,
+    NaverAuthModule,
+    GoogleAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
