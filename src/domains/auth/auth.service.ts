@@ -15,18 +15,13 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async signIn(
-    dto: DUserSignInByEmail,
-  ): Promise<{ access_token: string; refresh_token: string }> {
+  async signIn(dto: DUserSignInByEmail) {
     const user = await this.userService.getUserByEmail(dto.email);
     const decoded = bcrypt.compare(dto.password, user.password);
     if (!decoded)
       throw new BadRequestException('이메일 또는 비밀번호가 다릅니다.');
 
-    const accessToken = await this.generateAccessToken(user, 'user');
-    const refreshToken = await this.generateRefreshToken(user, 'user');
-
-    return { ...accessToken, ...refreshToken };
+    return user;
   }
 
   async generateAccessToken(

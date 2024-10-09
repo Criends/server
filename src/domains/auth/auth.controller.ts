@@ -2,6 +2,7 @@ import { AccountType } from 'src/types/account.type';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -30,8 +31,13 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() dto: DUserSignInByEmail) {
-    return this.authService.signIn(dto);
+  async signIn(@Body() dto: DUserSignInByEmail, @Res() res: Response) {
+    const checkUser = await this.authService.signIn(dto);
+    const access_token = jwt.sign({}, this.jwtSecret, {
+      subject: checkUser.id,
+    });
+    res.cookie('accessToken', access_token);
+    res.send({ access_token });
   }
 
   @HttpCode(HttpStatus.OK)
@@ -82,5 +88,11 @@ export class AuthController {
       res.cookie('accessToken', access_token);
       res.send({ access_token });
     } else this.userService.createUser(userId);
+  }
+
+  @Delete()
+  async signOut(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('accessToken');
+    res.status(204).send();
   }
 }
