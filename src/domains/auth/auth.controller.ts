@@ -1,3 +1,4 @@
+import { AccountType } from 'src/types/account.type';
 import {
   Body,
   Controller,
@@ -13,13 +14,19 @@ import { AuthService } from './auth.service';
 import { DUserSignInByEmail } from './auth.dto';
 import { Response } from 'express';
 import { UserService } from '../user/user.service';
+import * as jwt from 'jsonwebtoken';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
+  private jwtSecret: string;
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.jwtSecret = this.configService.getOrThrow('JWT_SECRET_KEY');
+  }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -68,7 +75,12 @@ export class AuthController {
     else if (social === 'kakao') userId = userInfo.data.id.toString();
 
     const checkUser = await this.userService.getUserById(userId);
-    if (checkUser) res.send({ accessToken });
-    else this.userService.createUser(userId);
+    if (checkUser) {
+      const access_token = jwt.sign({}, this.jwtSecret, {
+        subject: checkUser.id,
+      });
+      res.cookie('accessToken', access_token);
+      res.send({ access_token });
+    } else this.userService.createUser(userId);
   }
 }
