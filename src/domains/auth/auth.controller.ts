@@ -1,4 +1,3 @@
-import { AccountType } from 'src/types/account.type';
 import {
   Body,
   Controller,
@@ -81,7 +80,7 @@ export class AuthController {
     else if (social === 'kakao') userId = userInfo.data.id.toString();
 
     let checkUser = await this.userService.getUserById(userId);
-    if (!checkUser) checkUser = await this.userService.createUser(userId);
+    if (!checkUser) checkUser = await this.userService.signUpBySocial(userId);
 
     const access_token = jwt.sign({}, this.jwtSecret, {
       subject: checkUser.id,
