@@ -27,6 +27,22 @@ export class UserService {
       data: { id, email: data.email, password: hash },
     });
 
+    await this.initResumeAndPortfolio(id);
+
+    return newUser;
+  }
+
+  async signUpBySocial(socialId: string) {
+    const user = await this.prismaService.user.create({
+      data: {
+        id: socialId,
+      },
+    });
+    await this.initResumeAndPortfolio(socialId);
+    return user;
+  }
+
+  async initResumeAndPortfolio(id: string) {
     await this.prismaService.resume.create({
       data: {
         user: { connect: { id: id } },
@@ -49,8 +65,6 @@ export class UserService {
         address: '',
       },
     });
-
-    return newUser;
   }
 
   async getUserByEmail(email: string) {
@@ -60,5 +74,11 @@ export class UserService {
 
     if (!checkEmail) throw new NotFoundException('존재하지 않는 사용자입니다.');
     return checkEmail;
+  }
+
+  async getUserById(id: string) {
+    return await this.prismaService.user.findFirst({
+      where: { id: id },
+    });
   }
 }
