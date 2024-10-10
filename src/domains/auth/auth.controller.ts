@@ -80,14 +80,14 @@ export class AuthController {
     else if (social === 'google') userId = userInfo.data.id.toString();
     else if (social === 'kakao') userId = userInfo.data.id.toString();
 
-    const checkUser = await this.userService.getUserById(userId);
-    if (checkUser) {
-      const access_token = jwt.sign({}, this.jwtSecret, {
-        subject: checkUser.id,
-      });
-      res.cookie('accessToken', access_token);
-      res.send({ access_token });
-    } else this.userService.createUser(userId);
+    let checkUser = await this.userService.getUserById(userId);
+    if (!checkUser) checkUser = await this.userService.createUser(userId);
+
+    const access_token = jwt.sign({}, this.jwtSecret, {
+      subject: checkUser.id,
+    });
+    res.cookie('accessToken', access_token);
+    res.send({ access_token });
   }
 
   @Delete()

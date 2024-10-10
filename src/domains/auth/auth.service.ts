@@ -86,63 +86,107 @@ export class AuthService {
   }
 
   async getSocialSignInCode(social: string) {
-    if (social === 'naver')
-      return `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${this.configService.get('N_CLIENT_ID')}&redirect_uri=${this.configService.get('N_REDIRECT_URI')}&state=${this.configService.get('N_STATE')}`;
-    else if (social === 'google')
-      return `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${this.configService.get('G_CLIENT_ID')}&redirect_uri=${this.configService.get('G_REDIRECT_URI')}&scope=${encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')}&access_type=offline`;
-    else if (social === 'kakao')
-      return `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${this.configService.get('K_REST_API_KEY')}&redirect_uri=${this.configService.get('K_REDIRECT_URI')}`;
+    const baseUrl = this.getSocialBaseUrl(social);
+    const queryParams = this.getSocialQueryParams(social);
+
+    return `${baseUrl}?${new URLSearchParams(queryParams)}`;
+  }
+
+  private getSocialBaseUrl(social: string): string {
+    const baseUrls = {
+      naver: 'https://nid.naver.com/oauth2.0/authorize',
+      google: 'https://accounts.google.com/o/oauth2/v2/auth',
+      kakao: 'https://kauth.kakao.com/oauth/authorize',
+    };
+
+    return baseUrls[social];
+  }
+
+  private getSocialQueryParams(social: string): Record<string, string> {
+    const queryParams = {
+      naver: {
+        response_type: 'code',
+        client_id: this.configService.get('N_CLIENT_ID'),
+        redirect_uri: this.configService.get('N_REDIRECT_URI'),
+        state: this.configService.get('N_STATE'),
+      },
+      google: {
+        response_type: 'code',
+        client_id: this.configService.get('G_CLIENT_ID'),
+        redirect_uri: this.configService.get('G_REDIRECT_URI'),
+        scope: `https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email`,
+        access_type: 'offline',
+      },
+      kakao: {
+        response_type: 'code',
+        client_id: this.configService.get('K_REST_API_KEY'),
+        redirect_uri: this.configService.get('K_REDIRECT_URI'),
+      },
+    };
+
+    return queryParams[social];
   }
 
   async getSocialAccessToken(social: string, code: string) {
-    let url: string;
-    let params;
-    let header: object;
+    let config;
+    if (social === 'naver') config = this.getNaverSocialConfig(code);
+    else if (social === 'google') config = this.getGoogleSocialConfig(code);
+    else if (social === 'kakao') config = this.getKakaoSocialConfig(code);
 
-    if (social === 'naver') {
-      url = `https://nid.naver.com/oauth2.0/token`;
-      params = new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: this.configService.get('N_CLIENT_ID'),
-        client_secret: this.configService.get('N_CLIENT_SECRET'),
-        redirect_uri: this.configService.get('N_REDIRECT_URI'),
-        state: this.configService.get('N_STATE'),
-        code,
-      });
-      header = {
-        'X-Naver-Client-Id': this.configService.get('N_CLIENT_ID'),
-        'X-Naver-Client-Secret': this.configService.get('N_CLIENT_SECRET'),
-      };
-    } else if (social === 'google') {
-      url = 'https://oauth2.googleapis.com/token';
-      params = new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: this.configService.get('G_CLIENT_ID'),
-        client_secret: this.configService.get('G_CLIENT_SECRET'),
-        redirect_uri: this.configService.get('G_REDIRECT_URI'),
-        code,
-      });
-      header = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      };
-    } else if (social === 'kakao') {
-      url = 'https://kauth.kakao.com/oauth/token';
-      params = new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: this.configService.get('K_REST_API_KEY'),
-        redirect_uri: this.configService.get('K_REDIRECT_URI'),
-        code,
-      });
-      header = {
-        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-      };
-    }
-
-    const response = await axios.post(url, params, {
-      headers: header,
+    const response = await axios.post(config.url, config.params, {
+      headers: config.header,
     });
 
     return response.data.access_token;
+  }
+
+  private getNaverSocialConfig(code: string) {
+    const url = `https://nid.naver.com/oauth2.0/token`;
+    const params = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: this.configService.get('N_CLIENT_ID'),
+      client_secret: this.configService.get('N_CLIENT_SECRET'),
+      redirect_uri: this.configService.get('N_REDIRECT_URI'),
+      state: this.configService.get('N_STATE'),
+      code,
+    });
+    const header = {
+      'X-Naver-Client-Id': this.configService.get('N_CLIENT_ID'),
+      'X-Naver-Client-Secret': this.configService.get('N_CLIENT_SECRET'),
+    };
+
+    return { url, params, header };
+  }
+
+  private getGoogleSocialConfig(code: string) {
+    const url = 'https://oauth2.googleapis.com/token';
+    const params = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: this.configService.get('G_CLIENT_ID'),
+      client_secret: this.configService.get('G_CLIENT_SECRET'),
+      redirect_uri: this.configService.get('G_REDIRECT_URI'),
+      code,
+    });
+    const header = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    return { url, params, header };
+  }
+
+  private getKakaoSocialConfig(code: string) {
+    const url = 'https://kauth.kakao.com/oauth/token';
+    const params = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: this.configService.get('K_REST_API_KEY'),
+      redirect_uri: this.configService.get('K_REDIRECT_URI'),
+      code,
+    });
+    const header = {
+      'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+    };
+
+    return { url, params, header };
   }
 
   async getSocialUserInfo(social: string, accessToken: string) {
