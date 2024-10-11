@@ -3,7 +3,6 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DGetAllResumes, SortResume } from '../resume/resume.dto';
@@ -49,14 +48,14 @@ export class PortfolioService {
   async getPortfolio(portfolioId: string) {
     const projectList = await this.prismaService.project.findMany({
       where: { portfolioId: portfolioId },
-      // select: { portfolioId: true },
+      select: { id: true },
       orderBy: {
         index: 'asc',
       },
     });
 
     const projectDetails = await Promise.all(
-      projectList.map(async (project: DProject, index: number) => {
+      projectList.map(async (project: DProject) => {
         const order = await this.prismaService.project.findUnique({
           where: { id: project.id },
           select: {
@@ -124,18 +123,14 @@ export class PortfolioService {
   }
 
   async editProjectInfo(id: string, dto: DProjectInfo, userId: string) {
-    if (id.slice(5, 13) !== userId)
-      throw new UnauthorizedException('삭제 권한이 없습니다.');
+    if (!id.endsWith(userId))
+      throw new ForbiddenException('삭제 권한이 없습니다.');
 
-    try {
-      await this.updateUpdatedAt(userId);
-      return await this.prismaService.project.update({
-        where: { id: id },
-        data: { ...dto },
-      });
-    } catch {
-      throw new NotFoundException('존재하지 않는 항목입니다.');
-    }
+    await this.updateUpdatedAt(userId);
+    return await this.prismaService.project.update({
+      where: { id: id },
+      data: { ...dto },
+    });
   }
 
   async editProjectOrder(dto: DPortfolioOrder[], userId: string) {
@@ -219,8 +214,8 @@ export class PortfolioService {
   }
 
   async deleteProject(id: string, userId: string) {
-    if (id.slice(5, 13) !== userId)
-      throw new UnauthorizedException('삭제 권한이 없습니다.');
+    if (!id.endsWith(userId))
+      throw new ForbiddenException('삭제 권한이 없습니다.');
     try {
       await this.updateUpdatedAt(userId);
       await this.prismaService.project.delete({ where: { id: id } });
@@ -230,18 +225,15 @@ export class PortfolioService {
   }
 
   async deleteItem(id: string, userId: string) {
+    if (!id.endsWith(userId))
+      throw new ForbiddenException('삭제 권한이 없습니다.');
+
     const target = this.classifyBranch(id);
 
-    try {
-      await this.updateUpdatedAt(userId);
-      await this.prismaService[target].delete({
-        where: { id: id },
-      });
-    } catch {
-      if (id.slice(id.length - 8, 50) !== userId)
-        throw new UnauthorizedException('권한이 없습니다.');
-      throw new NotFoundException('존재하지 않는 항목입니다.');
-    }
+    await this.updateUpdatedAt(userId);
+    await this.prismaService[target].delete({
+      where: { id: id },
+    });
   }
 
   classifyBranch(target: string): string {

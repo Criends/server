@@ -39,12 +39,9 @@ export class PortfolioController {
     return await this.portfolioService.getPortfolio(id);
   }
 
-  //포트폴리오에 프로젝트 추가
-
   @Guard('user')
   @Post()
   async addProject(@DAccount('user') user: User) {
-    console.log(user);
     return await this.portfolioService.createProject(user.id);
   }
 

@@ -1,9 +1,8 @@
 import { PrismaService } from './../../prisma/prisma.service';
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
-  NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -111,17 +110,13 @@ export class ResumeService {
   }
 
   async deleteItem(itemId: string, userId: string) {
+    if (!itemId.endsWith(userId))
+      throw new ForbiddenException('권한이 없습니다.');
     const target = this.classifyItem(itemId);
 
-    try {
-      await this.prismaService[target].delete({
-        where: { id: itemId, resumeId: userId },
-      });
-    } catch {
-      if (itemId.endsWith(userId))
-        throw new NotFoundException('존재하지 않는 항목입니다.');
-      else throw new UnauthorizedException('권한이 없습니다.');
-    }
+    await this.prismaService[target].delete({
+      where: { id: itemId, resumeId: userId },
+    });
   }
 
   //이력서 초기화
@@ -227,16 +222,12 @@ export class ResumeService {
 
     return await Promise.all(
       dto.map(async (value) => {
-        try {
-          return await this.prismaService[target].update({
-            where: { id: value.id },
-            data: { ...value },
-          });
-        } catch {
-          if (value.endsWith(userId))
-            throw new NotFoundException('존재하지 않는 항목입니다.');
-          else throw new UnauthorizedException('권한이 없습니다.');
-        }
+        if (!value.id.endsWith(userId))
+          throw new ForbiddenException('권한이 없습니다.');
+        return await this.prismaService[target].update({
+          where: { id: value.id },
+          data: { ...value },
+        });
       }),
     );
   }
@@ -264,7 +255,7 @@ export class ResumeService {
 
   async likeUnlikeResume(resumeId: string, userId: string) {
     if (resumeId === userId)
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         '본인의 이력서에는 좋아요를 누를 수 없습니다.',
       );
 
@@ -295,15 +286,12 @@ export class ResumeService {
   }
 
   async editItemOrder(resumeId: string, userId: string, order: DResumeOrder) {
-    try {
-      return await this.prismaService.resume.update({
-        where: { id: resumeId },
-        data: { ...order },
-      });
-    } catch {
-      if (resumeId !== userId)
-        throw new UnauthorizedException('권한이 없습니다.');
-      else throw new BadRequestException('존재하지 않는 항목입니다.');
-    }
+    if (!resumeId.endsWith(userId))
+      throw new ForbiddenException('권한이 없습니다.');
+
+    return await this.prismaService.resume.update({
+      where: { id: resumeId },
+      data: { ...order },
+    });
   }
 }
