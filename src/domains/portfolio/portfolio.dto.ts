@@ -6,10 +6,22 @@ export class DProject {
   endDate?: string;
   repImages?: string;
   team?: DTeam[];
-  skills?: DSkill[];
-  contributions?: DContribution[];
-  troubleShootings?: DTroubleShooting[];
-  additionalPortfolios?: DAdditionalPortfolio[];
+  skill?: DSkill[];
+  contribution?: DContribution[];
+  troubleShooting?: DTroubleShooting[];
+  additionalPortfolio?: DAdditionalPortfolio[];
+}
+
+export class DPortfolioOrder {
+  projectId: string;
+  index: number;
+}
+export class DProjectOrder {
+  teamIndex: number;
+  skillIndex: number;
+  contributionIndex: number;
+  troubleShootingIndex: number;
+  additionalPortfolioIndex: number;
 }
 
 export class DProjectInfo {

@@ -219,7 +219,7 @@ model Project {
   skill                    Skill[]
   skillIndex               Int                   @default(1)
   projectSite              ProjectSite[]
-  projectIndex             Int                   @default(2)
+  projectSiteIndex         Int                   @default(2)
   contribution             Contribution[]
   contributionIndex        Int                   @default(3)
   troubleShooting          TroubleShooting[]

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -10,6 +11,7 @@ import { nanoid } from 'nanoid';
 import {
   DAdditionalPortfolio,
   DContribution,
+  DPortfolioOrder,
   DProject,
   DProjectInfo,
   DProjectSite,
@@ -46,86 +48,58 @@ export class PortfolioService {
   async getPortfolio(portfolioId: string) {
     const projectList = await this.prismaService.project.findMany({
       where: { portfolioId: portfolioId },
+      // select: { portfolioId: true },
       orderBy: {
         index: 'asc',
       },
     });
 
-    return projectList.map(async (project: DProject, index: number) => {
-      const order = await this.prismaService.project.findUnique({
-        where: { id: project.id },
-        select: {
-          teamIndex: true,
-          skillIndex: true,
-          projectIndex: true,
-          contributionIndex: true,
-          troubleShootingIndex: true,
-          additionalPortfolioIndex: true,
-        },
-      });
+    const projectDetails = await Promise.all(
+      projectList.map(async (project: DProject, index: number) => {
+        const order = await this.prismaService.project.findUnique({
+          where: { id: project.id },
+          select: {
+            teamIndex: true,
+            skillIndex: true,
+            projectSiteIndex: true,
+            contributionIndex: true,
+            troubleShootingIndex: true,
+            additionalPortfolioIndex: true,
+          },
+        });
 
-      const sections = [
-        { key: 'team', index: order.teamIndex },
-        { key: 'skill', index: order.skillIndex },
-        { key: 'project', index: order.projectIndex },
-        { key: 'contribution', index: order.contributionIndex },
-        { key: 'troubleShooting', index: order.troubleShootingIndex },
-        { key: 'additionalPortfolio', index: order.additionalPortfolioIndex },
-      ];
+        const sections = [
+          { key: 'team', index: order.teamIndex },
+          { key: 'skill', index: order.skillIndex },
+          { key: 'projectSite', index: order.projectSiteIndex },
+          { key: 'contribution', index: order.contributionIndex },
+          { key: 'troubleShooting', index: order.troubleShootingIndex },
+          { key: 'additionalPortfolio', index: order.additionalPortfolioIndex },
+        ];
 
-      sections.sort((a, b) => a.index - b.index);
+        sections.sort((a, b) => a.index - b.index);
 
-      const selectObject: any = {
-        id: true,
-        title: true,
-        content: true,
-        startDate: true,
-        endDate: true,
-        repImages: true,
-      };
+        const selectObject: any = {
+          id: true,
+          title: true,
+          content: true,
+          startDate: true,
+          endDate: true,
+          repImages: true,
+        };
 
-      sections.forEach((section) => {
-        selectObject[section.key] = { orderBy: { index: 'asc' } };
-      });
+        sections.forEach((section) => {
+          selectObject[section.key] = { orderBy: { index: 'asc' } };
+        });
 
-      return await this.prismaService.project.findUnique({
-        where: { id: project.id },
-        select: selectObject,
-      });
-    });
+        return await this.prismaService.project.findFirst({
+          where: { id: project.id },
+          select: selectObject,
+        });
+      }),
+    );
 
-    // return await this.prismaService.portfolio.findUnique({
-    //   where: { id: portfolioId },
-    //   include: {
-    //     project: {
-    //       select: {
-    //         id: true,
-    //         index: true,
-    //         team: {
-    //           orderBy: { index: 'asc' },
-    //         },
-    //         skill: {
-    //           orderBy: { index: 'asc' },
-    //         },
-    //         projectSite: {
-    //           orderBy: { index: 'asc' },
-    //         },
-    //         contribution: {
-    //           orderBy: { index: 'asc' },
-    //         },
-    //         troubleShooting: {
-    //           orderBy: { index: 'asc' },
-    //         },
-    //         additionalPortfolio: {
-    //           orderBy: { index: 'asc' },
-    //         },
-    //       },
-    //       orderBy: {
-    //         index: 'asc',
-    //       },
-    //     },
-    //   },
-    // });
+    return projectDetails;
   }
 
   async createProject(userId: string) {
@@ -162,6 +136,19 @@ export class PortfolioService {
     }
   }
 
+  async editProjectOrder(dto: DPortfolioOrder[], userId: string) {
+    await Promise.all(
+      dto.map(async (value: DPortfolioOrder) => {
+        if (!value.projectId.endsWith(userId))
+          throw new ForbiddenException('권한이 없습니다.');
+        await this.prismaService.project.update({
+          where: { id: value.projectId },
+          data: { index: value.index },
+        });
+      }),
+    );
+  }
+
   async createItem(
     projectId: string,
     branch: string,
@@ -174,6 +161,8 @@ export class PortfolioService {
       | DTroubleShooting[],
     userId: string,
   ) {
+    if (!projectId.endsWith(userId))
+      throw new ForbiddenException('권한이 없습니다.');
     const target = this.classifyBranch(branch);
 
     await this.updateUpdatedAt(userId);
@@ -248,7 +237,7 @@ export class PortfolioService {
     if (target.startsWith('team')) return 'team';
     else if (target.startsWith('skill')) return 'skill';
     else if (target.startsWith('site')) return 'projectSite';
-    else if (target.startsWith('projectSite')) return 'projectSite';
+    else if (target.startsWith('project-site')) return 'projectSite';
     else if (target.startsWith('contribution')) return 'contribution';
     else if (target.startsWith('trouble')) return 'troubleShooting';
     else if (target.startsWith('troubleShooting')) return 'troubleShooting';

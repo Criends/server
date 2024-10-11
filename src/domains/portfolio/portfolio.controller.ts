@@ -1,3 +1,4 @@
+import { DAccount } from './../../decorators/account.decorator';
 import {
   Body,
   Controller,
@@ -10,17 +11,17 @@ import {
 import { PortfolioService } from './portfolio.service';
 import { Guard } from 'src/decorators/guard.decorator';
 import { DGetAllResumes } from '../resume/resume.dto';
-import { DAccount } from 'src/decorators/account.decorator';
-import { User } from '@prisma/client';
 import {
   DAdditionalPortfolio,
   DContribution,
+  DPortfolioOrder,
   DProjectInfo,
   DProjectSite,
   DSkill,
   DTeam,
   DTroubleShooting,
 } from './portfolio.dto';
+import { User } from '../user/user.dto';
 
 @Controller('portfolio')
 export class PortfolioController {
@@ -34,11 +35,11 @@ export class PortfolioController {
   @Guard('user', 'company')
   @Get(':id')
   async getPortfolio(@Param('id') id: string, @DAccount('user') user: User) {
-    console.log(user);
     return await this.portfolioService.getPortfolio(id);
   }
 
   //포트폴리오에 프로젝트 추가
+
   @Guard('user')
   @Post()
   async addProject(@DAccount('user') user: User) {
@@ -54,6 +55,15 @@ export class PortfolioController {
     @DAccount('user') user: User,
   ) {
     return await this.portfolioService.editProjectInfo(projectId, dto, user.id);
+  }
+
+  @Guard('user')
+  @Patch('edit-order')
+  async editProjectOrder(
+    @Body() dto: DPortfolioOrder[],
+    @DAccount('user') user: User,
+  ) {
+    await this.portfolioService.editProjectOrder(dto, user.id);
   }
 
   //프로젝트에 팀/스킬/사이트/정보/기여/트러블슈팅/추가사항 추가
