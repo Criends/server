@@ -6,39 +6,46 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.dto';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { CookieOptions } from 'express';
 
 @Injectable()
 export class AuthService {
+  private jwtSecret: string;
+  private readonly cookieOptions: CookieOptions;
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.cookieOptions = {
+      maxAge: 1000 * 60 * 15,
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: false,
+    };
+
+    this.jwtSecret = this.configService.getOrThrow('JWT_SECRET_KEY');
+  }
 
   async signIn(dto: DUserSignInByEmail) {
     const user = await this.userService.getUserByEmail(dto.email);
-    const decoded = bcrypt.compare(dto.password, user.password);
+    const decoded = await bcrypt.compare(dto.password, user.password);
     if (!decoded)
       throw new BadRequestException('이메일 또는 비밀번호가 다릅니다.');
 
-    return user;
+    return await this.generateAccessToken(user, 'user');
   }
 
-  async generateAccessToken(
-    data: User,
-    accountType: string,
-  ): Promise<{ access_token: string }> {
+  async generateAccessToken(data: User, accountType: string): Promise<string> {
     const payload = {
       id: data.id,
       email: data.email,
       accountType: accountType,
     };
-    return {
-      access_token: await this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET_KEY'),
-        expiresIn: '5d',
-      }),
-    };
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_SECRET_KEY'),
+      expiresIn: '5d',
+    });
   }
 
   async generateRefreshToken(
@@ -52,7 +59,7 @@ export class AuthService {
     };
     return {
       refresh_token: await this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET_KEY'),
+        secret: this.configService.get<string>('JWT_REFRESH_KEY'),
         expiresIn: '7d',
       }),
     };
@@ -63,7 +70,7 @@ export class AuthService {
   ): Promise<{ access_token: string; refresh_token: string }> {
     try {
       const payload = await this.jwtService.verifyAsync(_refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET_KEY'),
+        secret: this.configService.get<string>('JWT_REFRESH_KEY'),
       });
 
       const accessToken = await this.generateAccessToken(
@@ -77,7 +84,7 @@ export class AuthService {
       );
 
       return {
-        access_token: accessToken.access_token,
+        access_token: accessToken,
         refresh_token: refreshToken.refresh_token,
       };
     } catch (e) {

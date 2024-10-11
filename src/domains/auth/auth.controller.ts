@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { DUserSignInByEmail } from './auth.dto';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import { UserService } from '../user/user.service';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
@@ -20,24 +20,29 @@ import { ConfigService } from '@nestjs/config';
 @Controller('auth')
 export class AuthController {
   private jwtSecret: string;
+  private readonly cookieOptions: CookieOptions;
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
     private configService: ConfigService,
   ) {
+    this.cookieOptions = {
+      maxAge: 1000 * 60 * 15,
+    };
     this.jwtSecret = this.configService.getOrThrow('JWT_SECRET_KEY');
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async signIn(@Body() dto: DUserSignInByEmail, @Res() res: Response) {
-    const checkUser = await this.authService.signIn(dto);
-    const access_token = jwt.sign({}, this.jwtSecret, {
-      subject: checkUser.id,
-    });
+    const accessToken = await this.authService.signIn(dto);
+    // const access_token = await this.jwtService.signAsync({}, this.jwtSecret, {
+    //   subject: checkUser.id,
+    // });
 
-    res.cookie('accessToken', access_token);
-    res.send({ access_token });
+    console.log('accessToken: ', accessToken);
+    res.cookie('accessToken', accessToken, this.cookieOptions);
+    return res.send({ accessToken });
   }
 
   @HttpCode(HttpStatus.OK)

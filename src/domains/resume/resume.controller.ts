@@ -34,7 +34,7 @@ export class ResumeController {
   }
 
   //TODO: DAccount에 company type을 union으로 추가할 것!!
-  @Guard(['user', 'company'])
+  @Guard('user', 'company')
   @Get(':id')
   async findResume(@Param('id') id: string) {
     return await this.resumeService.getResume(id);

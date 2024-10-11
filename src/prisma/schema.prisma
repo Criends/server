@@ -205,21 +205,27 @@ model Portfolio {
 }
 
 model Project {
-  id                  String                @id @unique
-  index               Int
-  portfolio           Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  portfolioId         String
-  title               String
-  content             String
-  startDate           String
-  endDate             String?
-  repImages           String?
-  team                Team[]
-  skill               Skill[]
-  projectSite         ProjectSite[]
-  contribution        Contribution[]
-  troubleShooting     TroubleShooting[]
-  additionalPortfolio AdditionalPortfolio[]
+  id                       String                @id @unique
+  index                    Int
+  portfolio                Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  portfolioId              String
+  title                    String
+  content                  String
+  startDate                String
+  endDate                  String?
+  repImages                String?
+  team                     Team[]
+  teamIndex                Int                   @default(0)
+  skill                    Skill[]
+  skillIndex               Int                   @default(1)
+  projectSite              ProjectSite[]
+  projectIndex             Int                   @default(2)
+  contribution             Contribution[]
+  contributionIndex        Int                   @default(3)
+  troubleShooting          TroubleShooting[]
+  troubleShootingIndex     Int                   @default(4)
+  additionalPortfolio      AdditionalPortfolio[]
+  additionalPortfolioIndex Int                   @default(5)
 }
 
 model Team {

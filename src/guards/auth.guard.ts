@@ -7,27 +7,39 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { Guard } from 'src/decorators/guard.decorator';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+  private readonly secretKey: string;
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
-
-  secretKey = this.configService.get('JWT_SECRET_KEY');
+    // private usersService: UserService,
+  ) {
+    this.secretKey = this.configService.get<string>('JWT_SECRET_KEY');
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const roles = this.reflector.get(Guard, context.getHandler());
+    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+
     if (!roles) {
       return true;
     }
 
     const request = context.switchToHttp().getRequest();
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    if (type !== 'Bearer') throw new UnauthorizedException();
+
+    const token = request.cookies['accessToken'];
+
+    if (!token) {
+      throw new UnauthorizedException();
+    }
+
+    const decodedToken = this.verifyToken(token);
+
+    if (!roles.includes(decodedToken.accountType))
+      throw new UnauthorizedException();
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
@@ -38,7 +50,14 @@ export class RolesGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const user = request.user;
-    return roles.includes(user.accountType);
+    return true;
+  }
+
+  private verifyToken(token: string): any {
+    try {
+      return jwt.verify(token, this.secretKey);
+    } catch {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

@@ -19,7 +19,6 @@ import {
   SortResume,
 } from './resume.dto';
 import { nanoid } from 'nanoid';
-import { error } from 'console';
 
 @Injectable()
 export class ResumeService {

@@ -31,9 +31,10 @@ export class PortfolioController {
     return await this.portfolioService.getAllPortfolio(data);
   }
 
-  @Guard(['user', 'company'])
+  @Guard('user', 'company')
   @Get(':id')
   async getPortfolio(@Param('id') id: string, @DAccount('user') user: User) {
+    console.log(user);
     return await this.portfolioService.getPortfolio(id);
   }
 
@@ -41,6 +42,7 @@ export class PortfolioController {
   @Guard('user')
   @Post()
   async addProject(@DAccount('user') user: User) {
+    console.log(user);
     return await this.portfolioService.createProject(user.id);
   }
 

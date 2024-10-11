@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid';
 import {
   DAdditionalPortfolio,
   DContribution,
+  DProject,
   DProjectInfo,
   DProjectSite,
   DSkill,
@@ -43,38 +44,88 @@ export class PortfolioService {
   }
 
   async getPortfolio(portfolioId: string) {
-    return await this.prismaService.portfolio.findUnique({
-      where: { id: portfolioId },
-      include: {
-        project: {
-          select: {
-            id: true,
-            index: true,
-            team: {
-              orderBy: { index: 'asc' },
-            },
-            skill: {
-              orderBy: { index: 'asc' },
-            },
-            projectSite: {
-              orderBy: { index: 'asc' },
-            },
-            contribution: {
-              orderBy: { index: 'asc' },
-            },
-            troubleShooting: {
-              orderBy: { index: 'asc' },
-            },
-            additionalPortfolio: {
-              orderBy: { index: 'asc' },
-            },
-          },
-          orderBy: {
-            index: 'asc',
-          },
-        },
+    const projectList = await this.prismaService.project.findMany({
+      where: { portfolioId: portfolioId },
+      orderBy: {
+        index: 'asc',
       },
     });
+
+    return projectList.map(async (project: DProject, index: number) => {
+      const order = await this.prismaService.project.findUnique({
+        where: { id: project.id },
+        select: {
+          teamIndex: true,
+          skillIndex: true,
+          projectIndex: true,
+          contributionIndex: true,
+          troubleShootingIndex: true,
+          additionalPortfolioIndex: true,
+        },
+      });
+
+      const sections = [
+        { key: 'team', index: order.teamIndex },
+        { key: 'skill', index: order.skillIndex },
+        { key: 'project', index: order.projectIndex },
+        { key: 'contribution', index: order.contributionIndex },
+        { key: 'troubleShooting', index: order.troubleShootingIndex },
+        { key: 'additionalPortfolio', index: order.additionalPortfolioIndex },
+      ];
+
+      sections.sort((a, b) => a.index - b.index);
+
+      const selectObject: any = {
+        id: true,
+        title: true,
+        content: true,
+        startDate: true,
+        endDate: true,
+        repImages: true,
+      };
+
+      sections.forEach((section) => {
+        selectObject[section.key] = { orderBy: { index: 'asc' } };
+      });
+
+      return await this.prismaService.project.findUnique({
+        where: { id: project.id },
+        select: selectObject,
+      });
+    });
+
+    // return await this.prismaService.portfolio.findUnique({
+    //   where: { id: portfolioId },
+    //   include: {
+    //     project: {
+    //       select: {
+    //         id: true,
+    //         index: true,
+    //         team: {
+    //           orderBy: { index: 'asc' },
+    //         },
+    //         skill: {
+    //           orderBy: { index: 'asc' },
+    //         },
+    //         projectSite: {
+    //           orderBy: { index: 'asc' },
+    //         },
+    //         contribution: {
+    //           orderBy: { index: 'asc' },
+    //         },
+    //         troubleShooting: {
+    //           orderBy: { index: 'asc' },
+    //         },
+    //         additionalPortfolio: {
+    //           orderBy: { index: 'asc' },
+    //         },
+    //       },
+    //       orderBy: {
+    //         index: 'asc',
+    //       },
+    //     },
+    //   },
+    // });
   }
 
   async createProject(userId: string) {
