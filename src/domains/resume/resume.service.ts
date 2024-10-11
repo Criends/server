@@ -289,7 +289,8 @@ export class ResumeService {
     if (!resumeId.endsWith(userId))
       throw new ForbiddenException('권한이 없습니다.');
 
-    return await this.prismaService.resume.update({
+    this.updateUpdatedAt(userId);
+    await this.prismaService.resume.update({
       where: { id: resumeId },
       data: { ...order },
     });

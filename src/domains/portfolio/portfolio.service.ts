@@ -134,6 +134,7 @@ export class PortfolioService {
   }
 
   async editProjectOrder(dto: DPortfolioOrder[], userId: string) {
+    await this.updateUpdatedAt(userId);
     await Promise.all(
       dto.map(async (value: DPortfolioOrder) => {
         if (!value.projectId.endsWith(userId))
@@ -206,6 +207,8 @@ export class PortfolioService {
 
   async editItemOrder(id: string, dto: DProjectOrder, userId: string) {
     if (!id.endsWith(userId)) throw new ForbiddenException('권한이 없습니다.');
+
+    await this.updateUpdatedAt(userId);
 
     await this.prismaService.project.update({
       where: { id: id },
