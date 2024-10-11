@@ -82,6 +82,7 @@ export class PortfolioService {
 
         const selectObject: any = {
           id: true,
+          index: true,
           title: true,
           content: true,
           startDate: true,

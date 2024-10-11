@@ -59,7 +59,7 @@ export class PortfolioController {
   }
 
   @Guard('user')
-  @Patch('edit-order')
+  @Patch()
   async editProjectOrder(
     @Body() dto: DPortfolioOrder[],
     @DAccount('user') user: User,
