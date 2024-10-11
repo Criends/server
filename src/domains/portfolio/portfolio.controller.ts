@@ -16,6 +16,7 @@ import {
   DContribution,
   DPortfolioOrder,
   DProjectInfo,
+  DProjectOrder,
   DProjectSite,
   DSkill,
   DTeam,
@@ -88,6 +89,16 @@ export class PortfolioController {
       dto,
       user.id,
     );
+  }
+
+  @Guard('user')
+  @Patch(':projectId/edit-order')
+  async editItemOrder(
+    @Param('projectId') projectId: string,
+    @Body() dto: DProjectOrder,
+    @DAccount('user') user: User,
+  ) {
+    await this.portfolioService.editItemOrder(projectId, dto, user.id);
   }
 
   @Guard('user')

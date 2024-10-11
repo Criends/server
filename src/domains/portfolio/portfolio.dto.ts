@@ -19,6 +19,7 @@ export class DPortfolioOrder {
 export class DProjectOrder {
   teamIndex: number;
   skillIndex: number;
+  projectSiteIndex: number;
   contributionIndex: number;
   troubleShootingIndex: number;
   additionalPortfolioIndex: number;

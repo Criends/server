@@ -14,6 +14,7 @@ import {
   DPortfolioOrder,
   DProject,
   DProjectInfo,
+  DProjectOrder,
   DProjectSite,
   DSkill,
   DTeam,
@@ -205,6 +206,15 @@ export class PortfolioService {
         });
       }),
     );
+  }
+
+  async editItemOrder(id: string, dto: DProjectOrder, userId: string) {
+    if (!id.endsWith(userId)) throw new ForbiddenException('권한이 없습니다.');
+
+    await this.prismaService.project.update({
+      where: { id: id },
+      data: { ...dto },
+    });
   }
 
   async deleteProject(id: string, userId: string) {
