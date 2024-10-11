@@ -7,6 +7,7 @@ export class DProject {
   repImages?: string;
   team?: DTeam[];
   skill?: DSkill[];
+  projectSite?: DProjectSite[];
   contribution?: DContribution[];
   troubleShooting?: DTroubleShooting[];
   additionalPortfolio?: DAdditionalPortfolio[];
@@ -17,12 +18,12 @@ export class DPortfolioOrder {
   index: number;
 }
 export class DProjectOrder {
-  teamIndex: number;
-  skillIndex: number;
-  projectSiteIndex: number;
-  contributionIndex: number;
-  troubleShootingIndex: number;
-  additionalPortfolioIndex: number;
+  teamIndex?: number;
+  skillIndex?: number;
+  projectSiteIndex?: number;
+  contributionIndex?: number;
+  troubleShootingIndex?: number;
+  additionalPortfolioIndex?: number;
 }
 
 export class DProjectInfo {
