@@ -88,21 +88,28 @@ model Notice {
 }
 
 model Resume {
-  user             User               @relation(fields: [id], references: [id], onDelete: Cascade)
-  id               String             @id
-  likes            Int?               @default(0)
-  title            String?
-  expose           ExposeRange        @default(SECRET)
-  proposal         Int?               @default(0)
-  updatedAt        DateTime
-  personnelInfo    PersonnelInfo?
-  introduce        Introduce[]
-  activity         Activity[]
-  certificate      Certificate[]
-  career           Career[]
-  site             Site[]
-  additionalResume AdditionalResume[]
-  liked            LikeResume[]
+  user                  User               @relation(fields: [id], references: [id], onDelete: Cascade)
+  id                    String             @id
+  likes                 Int?               @default(0)
+  title                 String?
+  expose                ExposeRange        @default(SECRET)
+  proposal              Int?               @default(0)
+  updatedAt             DateTime
+  personnelInfo         PersonnelInfo?
+  personnelInfoIndex    Int                @default(0)
+  introduce             Introduce[]
+  introduceIndex        Int                @default(1)
+  activity              Activity[]
+  activityIndex         Int                @default(2)
+  certificate           Certificate[]
+  certificateIndex      Int                @default(3)
+  career                Career[]
+  careerIndex           Int                @default(4)
+  site                  Site[]
+  siteIndex             Int                @default(5)
+  additionalResume      AdditionalResume[]
+  additionalResumeIndex Int                @default(6)
+  liked                 LikeResume[]
 }
 
 model PersonnelInfo {

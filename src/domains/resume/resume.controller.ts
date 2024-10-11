@@ -17,6 +17,7 @@ import {
   DIntroduce,
   DPersonnelInfo,
   DResumeInfo,
+  DResumeOrder,
   DSite,
 } from './resume.dto';
 import { Guard } from 'src/decorators/guard.decorator';
@@ -35,8 +36,18 @@ export class ResumeController {
   //TODO: DAccount에 company type을 union으로 추가할 것!!
   @Guard(['user', 'company'])
   @Get(':id')
-  async findResume(@Param('id') id: string, @DAccount('user') user: User) {
+  async findResume(@Param('id') id: string) {
     return await this.resumeService.getResume(id);
+  }
+
+  @Guard('user')
+  @Patch(':id')
+  async editOrder(
+    @Param('id') id: string,
+    @Body() dto: DResumeOrder,
+    @DAccount('user') user: User,
+  ) {
+    return await this.resumeService.editItemOrder(id, user.id, dto);
   }
 
   @Guard('user')

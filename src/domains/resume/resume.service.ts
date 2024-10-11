@@ -14,10 +14,12 @@ import {
   DIntroduce,
   DPersonnelInfo,
   DResumeInfo,
+  DResumeOrder,
   DSite,
   SortResume,
 } from './resume.dto';
 import { nanoid } from 'nanoid';
+import { error } from 'console';
 
 @Injectable()
 export class ResumeService {
@@ -26,22 +28,50 @@ export class ResumeService {
   //TODO: expose 범위에 따라 반환 여부 수정
   //단일 이력서 조회
   async getResume(id: string) {
-    const resume = await this.prismaService.resume.findUnique({
+    const order = await this.prismaService.resume.findUnique({
       where: { id },
       select: {
-        id: true,
-        title: true,
-        likes: true,
-        proposal: true,
-        personnelInfo: true,
-        introduce: { orderBy: { index: 'asc' } },
-        activity: { orderBy: { index: 'asc' } },
-        certificate: { orderBy: { index: 'asc' } },
-        career: { orderBy: { index: 'asc' } },
-        site: { orderBy: { index: 'asc' } },
-        additionalResume: { orderBy: { index: 'asc' } },
-        expose: true,
+        personnelInfoIndex: true,
+        introduceIndex: true,
+        activityIndex: true,
+        certificateIndex: true,
+        careerIndex: true,
+        siteIndex: true,
+        additionalResumeIndex: true,
       },
+    });
+
+    const sections = [
+      { key: 'personnelInfo', index: order.personnelInfoIndex },
+      { key: 'introduce', index: order.introduceIndex },
+      { key: 'activity', index: order.activityIndex },
+      { key: 'certificate', index: order.certificateIndex },
+      { key: 'career', index: order.careerIndex },
+      { key: 'site', index: order.siteIndex },
+      { key: 'additionalResume', index: order.additionalResumeIndex },
+    ];
+
+    sections.sort((a, b) => a.index - b.index);
+
+    const selectObject: any = {
+      id: true,
+      title: true,
+      likes: true,
+      proposal: true,
+      expose: true,
+    };
+
+    sections.forEach((section) => {
+      if (section.key === 'personnelInfo') {
+        selectObject[section.key] = true;
+      } else {
+        selectObject[section.key] = { orderBy: { index: 'asc' } };
+      }
+    });
+
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id },
+      select: selectObject,
     });
 
     return resume;
@@ -66,6 +96,14 @@ export class ResumeService {
     const resumes = await this.prismaService.resume.findMany({
       where: {
         expose: data.expose,
+      },
+      select: {
+        id: true,
+        likes: true,
+        title: true,
+        expose: true,
+        proposal: true,
+        updatedAt: true,
       },
       orderBy: orderByField,
     });
@@ -255,5 +293,18 @@ export class ResumeService {
         likes: likesLogic,
       },
     });
+  }
+
+  async editItemOrder(resumeId: string, userId: string, order: DResumeOrder) {
+    try {
+      return await this.prismaService.resume.update({
+        where: { id: resumeId },
+        data: { ...order },
+      });
+    } catch {
+      if (resumeId !== userId)
+        throw new UnauthorizedException('권한이 없습니다.');
+      else throw new BadRequestException('존재하지 않는 항목입니다.');
+    }
   }
 }

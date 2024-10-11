@@ -35,6 +35,7 @@ export class AuthController {
     const access_token = jwt.sign({}, this.jwtSecret, {
       subject: checkUser.id,
     });
+
     res.cookie('accessToken', access_token);
     res.send({ access_token });
   }
