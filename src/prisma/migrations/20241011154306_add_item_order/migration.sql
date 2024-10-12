@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Project" ADD COLUMN     "additionalPortfolioIndex" INTEGER NOT NULL DEFAULT 5,
+ADD COLUMN     "contributionIndex" INTEGER NOT NULL DEFAULT 3,
+ADD COLUMN     "projectIndex" INTEGER NOT NULL DEFAULT 2,
+ADD COLUMN     "skillIndex" INTEGER NOT NULL DEFAULT 1,
+ADD COLUMN     "teamIndex" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "troubleShootingIndex" INTEGER NOT NULL DEFAULT 4;

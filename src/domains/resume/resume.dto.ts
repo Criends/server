@@ -27,6 +27,7 @@ export class DResumeInfo {
   title?: string;
   expose?: ExposeRange;
 }
+
 export class DPersonnelInfo {
   id?: string;
   name?: string;
@@ -105,4 +106,14 @@ export class DGetAllResumes {
 
   @IsEnum(ExposeRange)
   expose: ExposeRange;
+}
+
+export class DResumeOrder {
+  personnelInfoIndex?: number;
+  introduceIndex?: number;
+  activityIndex?: number;
+  certificateIndex?: number;
+  careerIndex?: number;
+  siteIndex?: number;
+  additionalResumeIndex?: number;
 }

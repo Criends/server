@@ -1,9 +1,8 @@
 import { PrismaService } from './../../prisma/prisma.service';
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
-  NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import {
   DActivity,
@@ -14,6 +13,7 @@ import {
   DIntroduce,
   DPersonnelInfo,
   DResumeInfo,
+  DResumeOrder,
   DSite,
   SortResume,
 } from './resume.dto';
@@ -26,22 +26,50 @@ export class ResumeService {
   //TODO: expose 범위에 따라 반환 여부 수정
   //단일 이력서 조회
   async getResume(id: string) {
-    const resume = await this.prismaService.resume.findUnique({
+    const order = await this.prismaService.resume.findUnique({
       where: { id },
       select: {
-        id: true,
-        title: true,
-        likes: true,
-        proposal: true,
-        personnelInfo: true,
-        introduce: { orderBy: { index: 'asc' } },
-        activity: { orderBy: { index: 'asc' } },
-        certificate: { orderBy: { index: 'asc' } },
-        career: { orderBy: { index: 'asc' } },
-        site: { orderBy: { index: 'asc' } },
-        additionalResume: { orderBy: { index: 'asc' } },
-        expose: true,
+        personnelInfoIndex: true,
+        introduceIndex: true,
+        activityIndex: true,
+        certificateIndex: true,
+        careerIndex: true,
+        siteIndex: true,
+        additionalResumeIndex: true,
       },
+    });
+
+    const sections = [
+      { key: 'personnelInfo', index: order.personnelInfoIndex },
+      { key: 'introduce', index: order.introduceIndex },
+      { key: 'activity', index: order.activityIndex },
+      { key: 'certificate', index: order.certificateIndex },
+      { key: 'career', index: order.careerIndex },
+      { key: 'site', index: order.siteIndex },
+      { key: 'additionalResume', index: order.additionalResumeIndex },
+    ];
+
+    sections.sort((a, b) => a.index - b.index);
+
+    const selectObject: any = {
+      id: true,
+      title: true,
+      likes: true,
+      proposal: true,
+      expose: true,
+    };
+
+    sections.forEach((section) => {
+      if (section.key === 'personnelInfo') {
+        selectObject[section.key] = true;
+      } else {
+        selectObject[section.key] = { orderBy: { index: 'asc' } };
+      }
+    });
+
+    const resume = await this.prismaService.resume.findUnique({
+      where: { id },
+      select: selectObject,
     });
 
     return resume;
@@ -67,6 +95,14 @@ export class ResumeService {
       where: {
         expose: data.expose,
       },
+      select: {
+        id: true,
+        likes: true,
+        title: true,
+        expose: true,
+        proposal: true,
+        updatedAt: true,
+      },
       orderBy: orderByField,
     });
 
@@ -74,17 +110,13 @@ export class ResumeService {
   }
 
   async deleteItem(itemId: string, userId: string) {
+    if (!itemId.endsWith(userId))
+      throw new ForbiddenException('권한이 없습니다.');
     const target = this.classifyItem(itemId);
 
-    try {
-      await this.prismaService[target].delete({
-        where: { id: itemId, resumeId: userId },
-      });
-    } catch {
-      if (itemId.endsWith(userId))
-        throw new NotFoundException('존재하지 않는 항목입니다.');
-      else throw new UnauthorizedException('권한이 없습니다.');
-    }
+    await this.prismaService[target].delete({
+      where: { id: itemId, resumeId: userId },
+    });
   }
 
   //이력서 초기화
@@ -190,16 +222,12 @@ export class ResumeService {
 
     return await Promise.all(
       dto.map(async (value) => {
-        try {
-          return await this.prismaService[target].update({
-            where: { id: value.id },
-            data: { ...value },
-          });
-        } catch {
-          if (value.endsWith(userId))
-            throw new NotFoundException('존재하지 않는 항목입니다.');
-          else throw new UnauthorizedException('권한이 없습니다.');
-        }
+        if (!value.id.endsWith(userId))
+          throw new ForbiddenException('권한이 없습니다.');
+        return await this.prismaService[target].update({
+          where: { id: value.id },
+          data: { ...value },
+        });
       }),
     );
   }
@@ -227,7 +255,7 @@ export class ResumeService {
 
   async likeUnlikeResume(resumeId: string, userId: string) {
     if (resumeId === userId)
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         '본인의 이력서에는 좋아요를 누를 수 없습니다.',
       );
 
@@ -254,6 +282,17 @@ export class ResumeService {
       data: {
         likes: likesLogic,
       },
+    });
+  }
+
+  async editItemOrder(resumeId: string, userId: string, order: DResumeOrder) {
+    if (!resumeId.endsWith(userId))
+      throw new ForbiddenException('권한이 없습니다.');
+
+    this.updateUpdatedAt(userId);
+    await this.prismaService.resume.update({
+      where: { id: resumeId },
+      data: { ...order },
     });
   }
 }

@@ -1,8 +1,8 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DGetAllResumes, SortResume } from '../resume/resume.dto';
@@ -10,7 +10,10 @@ import { nanoid } from 'nanoid';
 import {
   DAdditionalPortfolio,
   DContribution,
+  DPortfolioOrder,
+  DProject,
   DProjectInfo,
+  DProjectOrder,
   DProjectSite,
   DSkill,
   DTeam,
@@ -43,38 +46,61 @@ export class PortfolioService {
   }
 
   async getPortfolio(portfolioId: string) {
-    return await this.prismaService.portfolio.findUnique({
-      where: { id: portfolioId },
-      include: {
-        project: {
-          select: {
-            id: true,
-            index: true,
-            team: {
-              orderBy: { index: 'asc' },
-            },
-            skill: {
-              orderBy: { index: 'asc' },
-            },
-            projectSite: {
-              orderBy: { index: 'asc' },
-            },
-            contribution: {
-              orderBy: { index: 'asc' },
-            },
-            troubleShooting: {
-              orderBy: { index: 'asc' },
-            },
-            additionalPortfolio: {
-              orderBy: { index: 'asc' },
-            },
-          },
-          orderBy: {
-            index: 'asc',
-          },
-        },
+    const projectList = await this.prismaService.project.findMany({
+      where: { portfolioId: portfolioId },
+      select: { id: true },
+      orderBy: {
+        index: 'asc',
       },
     });
+
+    const projectDetails = await Promise.all(
+      projectList.map(async (project: DProject) => {
+        const order = await this.prismaService.project.findUnique({
+          where: { id: project.id },
+          select: {
+            teamIndex: true,
+            skillIndex: true,
+            projectSiteIndex: true,
+            contributionIndex: true,
+            troubleShootingIndex: true,
+            additionalPortfolioIndex: true,
+          },
+        });
+
+        const sections = [
+          { key: 'team', index: order.teamIndex },
+          { key: 'skill', index: order.skillIndex },
+          { key: 'projectSite', index: order.projectSiteIndex },
+          { key: 'contribution', index: order.contributionIndex },
+          { key: 'troubleShooting', index: order.troubleShootingIndex },
+          { key: 'additionalPortfolio', index: order.additionalPortfolioIndex },
+        ];
+
+        sections.sort((a, b) => a.index - b.index);
+
+        const selectObject: any = {
+          id: true,
+          index: true,
+          title: true,
+          content: true,
+          startDate: true,
+          endDate: true,
+          repImages: true,
+        };
+
+        sections.forEach((section) => {
+          selectObject[section.key] = { orderBy: { index: 'asc' } };
+        });
+
+        return await this.prismaService.project.findFirst({
+          where: { id: project.id },
+          select: selectObject,
+        });
+      }),
+    );
+
+    return projectDetails;
   }
 
   async createProject(userId: string) {
@@ -97,18 +123,28 @@ export class PortfolioService {
   }
 
   async editProjectInfo(id: string, dto: DProjectInfo, userId: string) {
-    if (id.slice(5, 13) !== userId)
-      throw new UnauthorizedException('삭제 권한이 없습니다.');
+    if (!id.endsWith(userId))
+      throw new ForbiddenException('삭제 권한이 없습니다.');
 
-    try {
-      await this.updateUpdatedAt(userId);
-      return await this.prismaService.project.update({
-        where: { id: id },
-        data: { ...dto },
-      });
-    } catch {
-      throw new NotFoundException('존재하지 않는 항목입니다.');
-    }
+    await this.updateUpdatedAt(userId);
+    return await this.prismaService.project.update({
+      where: { id: id },
+      data: { ...dto },
+    });
+  }
+
+  async editProjectOrder(dto: DPortfolioOrder[], userId: string) {
+    await this.updateUpdatedAt(userId);
+    await Promise.all(
+      dto.map(async (value: DPortfolioOrder) => {
+        if (!value.projectId.endsWith(userId))
+          throw new ForbiddenException('권한이 없습니다.');
+        await this.prismaService.project.update({
+          where: { id: value.projectId },
+          data: { index: value.index },
+        });
+      }),
+    );
   }
 
   async createItem(
@@ -123,6 +159,8 @@ export class PortfolioService {
       | DTroubleShooting[],
     userId: string,
   ) {
+    if (!projectId.endsWith(userId))
+      throw new ForbiddenException('권한이 없습니다.');
     const target = this.classifyBranch(branch);
 
     await this.updateUpdatedAt(userId);
@@ -167,9 +205,20 @@ export class PortfolioService {
     );
   }
 
+  async editItemOrder(id: string, dto: DProjectOrder, userId: string) {
+    if (!id.endsWith(userId)) throw new ForbiddenException('권한이 없습니다.');
+
+    await this.updateUpdatedAt(userId);
+
+    await this.prismaService.project.update({
+      where: { id: id },
+      data: { ...dto },
+    });
+  }
+
   async deleteProject(id: string, userId: string) {
-    if (id.slice(5, 13) !== userId)
-      throw new UnauthorizedException('삭제 권한이 없습니다.');
+    if (!id.endsWith(userId))
+      throw new ForbiddenException('삭제 권한이 없습니다.');
     try {
       await this.updateUpdatedAt(userId);
       await this.prismaService.project.delete({ where: { id: id } });
@@ -179,25 +228,22 @@ export class PortfolioService {
   }
 
   async deleteItem(id: string, userId: string) {
+    if (!id.endsWith(userId))
+      throw new ForbiddenException('삭제 권한이 없습니다.');
+
     const target = this.classifyBranch(id);
 
-    try {
-      await this.updateUpdatedAt(userId);
-      await this.prismaService[target].delete({
-        where: { id: id },
-      });
-    } catch {
-      if (id.slice(id.length - 8, 50) !== userId)
-        throw new UnauthorizedException('권한이 없습니다.');
-      throw new NotFoundException('존재하지 않는 항목입니다.');
-    }
+    await this.updateUpdatedAt(userId);
+    await this.prismaService[target].delete({
+      where: { id: id },
+    });
   }
 
   classifyBranch(target: string): string {
     if (target.startsWith('team')) return 'team';
     else if (target.startsWith('skill')) return 'skill';
     else if (target.startsWith('site')) return 'projectSite';
-    else if (target.startsWith('projectSite')) return 'projectSite';
+    else if (target.startsWith('project-site')) return 'projectSite';
     else if (target.startsWith('contribution')) return 'contribution';
     else if (target.startsWith('trouble')) return 'troubleShooting';
     else if (target.startsWith('troubleShooting')) return 'troubleShooting';
