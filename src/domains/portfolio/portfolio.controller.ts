@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { Guard } from 'src/decorators/guard.decorator';
-import { DGetAllResumes, SortResume } from '../resume/resume.dto';
+import { SortResume } from '../resume/resume.dto';
 import {
   DAdditionalPortfolio,
   DContribution,

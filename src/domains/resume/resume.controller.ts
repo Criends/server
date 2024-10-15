@@ -14,7 +14,6 @@ import {
   DAdditionalResume,
   DCareer,
   DCertificate,
-  DGetAllResumes,
   DIntroduce,
   DPersonnelInfo,
   DResumeInfo,
