@@ -14,7 +14,10 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
-  app.enableCors({ origin: 'http://localhost:3000', credentials: true });
+  app.enableCors({
+    origin: process.env.CLIENT_PORT,
+    credentials: true,
+  });
   app.listen(configService.get('PORT'));
 }
 bootstrap();
