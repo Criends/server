@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ResumeService } from './resume.service';
 import {
@@ -13,24 +14,28 @@ import {
   DAdditionalResume,
   DCareer,
   DCertificate,
-  DGetAllResumes,
   DIntroduce,
   DPersonnelInfo,
   DResumeInfo,
   DResumeOrder,
   DSite,
+  SortResume,
 } from './resume.dto';
 import { Guard } from 'src/decorators/guard.decorator';
 import { DAccount } from 'src/decorators/account.decorator';
 import { User } from '../user/user.dto';
+import { ExposeRange } from '@prisma/client';
 
 @Controller('resume')
 export class ResumeController {
   constructor(private readonly resumeService: ResumeService) {}
 
   @Get()
-  async findAllResume(@Body() data: DGetAllResumes) {
-    return await this.resumeService.getAllResumes(data);
+  async findAllResume(
+    @Query('sort') sort: SortResume,
+    @Query('expose') expose: ExposeRange,
+  ) {
+    return await this.resumeService.getAllResumes({ sort, expose });
   }
 
   //TODO: DAccount에 company type을 union으로 추가할 것!!

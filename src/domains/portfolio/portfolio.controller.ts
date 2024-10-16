@@ -7,10 +7,11 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { Guard } from 'src/decorators/guard.decorator';
-import { DGetAllResumes } from '../resume/resume.dto';
+import { SortResume } from '../resume/resume.dto';
 import {
   DAdditionalPortfolio,
   DContribution,
@@ -23,14 +24,18 @@ import {
   DTroubleShooting,
 } from './portfolio.dto';
 import { User } from '../user/user.dto';
+import { ExposeRange } from '@prisma/client';
 
 @Controller('portfolio')
 export class PortfolioController {
   constructor(private readonly portfolioService: PortfolioService) {}
 
   @Get()
-  async findAllPortfolio(@Body() data: DGetAllResumes) {
-    return await this.portfolioService.getAllPortfolio(data);
+  async findAllPortfolio(
+    @Query('sort') sort: SortResume,
+    @Query('expose') expose: ExposeRange,
+  ) {
+    return await this.portfolioService.getAllPortfolio({ sort, expose });
   }
 
   @Guard('user', 'company')
