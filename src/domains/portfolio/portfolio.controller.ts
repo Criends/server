@@ -21,26 +21,17 @@ import {
   DProjectInfo,
   DProjectOrder,
   DProjectSite,
-  DRepImages,
   DSkill,
   DTeam,
   DTroubleShooting,
 } from './portfolio.dto';
 import { User } from '../user/user.dto';
 import { ExposeRange } from '@prisma/client';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-} from '@nestjs/platform-express';
-import { UploadPartCommand } from '@aws-sdk/client-s3';
-import { S3Service } from '../s3/s3.service';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('portfolio')
 export class PortfolioController {
-  constructor(
-    private readonly portfolioService: PortfolioService,
-    private readonly s3Service: S3Service,
-  ) {}
+  constructor(private readonly portfolioService: PortfolioService) {}
 
   @Get()
   async findAllPortfolio(

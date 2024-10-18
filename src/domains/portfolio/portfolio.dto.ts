@@ -33,12 +33,6 @@ export class DProjectInfo {
   endDate?: string;
 }
 
-export class DRepImages {
-  image1?: object;
-  image2?: object;
-  image3?: object;
-  image4?: object;
-}
 export class DTeam {
   id?: string;
   projectId?: string;

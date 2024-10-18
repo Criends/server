@@ -15,7 +15,6 @@ import {
   DProjectInfo,
   DProjectOrder,
   DProjectSite,
-  DRepImages,
   DSkill,
   DTeam,
   DTroubleShooting,
