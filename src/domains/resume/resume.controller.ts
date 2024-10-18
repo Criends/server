@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ResumeService } from './resume.service';
 import {
@@ -25,6 +27,7 @@ import { Guard } from 'src/decorators/guard.decorator';
 import { DAccount } from 'src/decorators/account.decorator';
 import { User } from '../user/user.dto';
 import { ExposeRange } from '@prisma/client';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('resume')
 export class ResumeController {
@@ -56,13 +59,20 @@ export class ResumeController {
   }
 
   @Guard('user')
+  @UseInterceptors(FileInterceptor('profileImage'))
   @Patch('info/:branch')
   async editInfo(
     @Param('branch') branch: string,
     @Body() dto: DResumeInfo | DPersonnelInfo,
     @DAccount('user') user: User,
+    @UploadedFile() profileImage?: Express.Multer.File | null,
   ) {
-    return await this.resumeService.editInfo(branch, dto, user.id);
+    return await this.resumeService.editInfo(
+      branch,
+      dto,
+      profileImage,
+      user.id,
+    );
   }
 
   @Guard('user')

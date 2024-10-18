@@ -18,32 +18,10 @@ import {
   SortResume,
 } from './resume.dto';
 import { nanoid } from 'nanoid';
-import { S3Client } from '@aws-sdk/client-s3';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ResumeService {
-  private s3: S3Client;
-  private bucketName: string;
-  private readonly fileFieldsInterceptor;
-
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly configService: ConfigService,
-  ) {
-    const region = this.configService.get('AWS_REGION');
-    const accessKeyId = this.configService.get('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get('AWS_SECRET_ACCESS_KEY');
-    this.s3 = new S3Client({
-      region: region,
-      credentials: {
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-      },
-    });
-    this.bucketName =
-      this.configService.get('AWS_S3_BUCKET_NAME') ?? 'criends-bucket';
-  }
+  constructor(private readonly prismaService: PrismaService) {}
 
   //TODO: expose 범위에 따라 반환 여부 수정
   //단일 이력서 조회
@@ -141,6 +119,13 @@ export class ResumeService {
     });
   }
 
+  async addProfileImage(image: string, userId: string) {
+    return await this.prismaService.personnelInfo.update({
+      where: { id: userId },
+      data: { profileImage: image },
+    });
+  }
+
   //이력서 초기화
   async resetResume(userId: string) {
     const target = [
@@ -185,6 +170,7 @@ export class ResumeService {
   async editInfo(
     branch: string,
     dto: DResumeInfo | DPersonnelInfo,
+    profileImage: File,
     userId: string,
   ) {
     const target = this.classifyItem(branch);
