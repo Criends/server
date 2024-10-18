@@ -19,32 +19,10 @@ import {
   DTeam,
   DTroubleShooting,
 } from './portfolio.dto';
-import { S3Client } from '@aws-sdk/client-s3';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PortfolioService {
-  private s3: S3Client;
-  private bucketName: string;
-  private readonly fileFieldsInterceptor;
-
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly configService: ConfigService,
-  ) {
-    const region = this.configService.get('AWS_REGION');
-    const accessKeyId = this.configService.get('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get('AWS_SECRET_ACCESS_KEY');
-    this.s3 = new S3Client({
-      region: region,
-      credentials: {
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-      },
-    });
-    this.bucketName =
-      this.configService.get('AWS_S3_BUCKET_NAME') ?? 'criends-bucket';
-  }
+  constructor(private readonly prismaService: PrismaService) {}
 
   async getAllPortfolio(data: DGetAllResumes) {
     const orderByField: object[] = [];

@@ -213,7 +213,7 @@ model Project {
   content                  String
   startDate                String
   endDate                  String?
-  repImages                String?
+  repImages                String[]
   team                     Team[]
   teamIndex                Int                   @default(0)
   skill                    Skill[]
