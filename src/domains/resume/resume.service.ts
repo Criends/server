@@ -170,7 +170,6 @@ export class ResumeService {
   async editInfo(
     branch: string,
     dto: DResumeInfo | DPersonnelInfo,
-    profileImage: File,
     userId: string,
   ) {
     const target = this.classifyItem(branch);

@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ResumeService } from './resume.service';
@@ -27,11 +28,18 @@ import { Guard } from 'src/decorators/guard.decorator';
 import { DAccount } from 'src/decorators/account.decorator';
 import { User } from '../user/user.dto';
 import { ExposeRange } from '@prisma/client';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
+import { S3Service } from '../s3/s3.service';
 
 @Controller('resume')
 export class ResumeController {
-  constructor(private readonly resumeService: ResumeService) {}
+  constructor(
+    private readonly resumeService: ResumeService,
+    private readonly s3Service: S3Service,
+  ) {}
 
   @Get()
   async findAllResume(
@@ -59,20 +67,23 @@ export class ResumeController {
   }
 
   @Guard('user')
+  @Patch('info/resume-info')
+  async editResumeInfo(@Body() dto: DResumeInfo, @DAccount('user') user: User) {
+    return await this.resumeService.editInfo('resume-info', dto, user.id);
+  }
+
+  @Guard('user')
   @UseInterceptors(FileInterceptor('profileImage'))
-  @Patch('info/:branch')
+  @Patch('info/personnel-info')
   async editInfo(
-    @Param('branch') branch: string,
-    @Body() dto: DResumeInfo | DPersonnelInfo,
+    @Body() dto: DPersonnelInfo,
     @DAccount('user') user: User,
-    @UploadedFile() profileImage?: Express.Multer.File | null,
+    @UploadedFile() profileImage?: Express.Multer.File,
   ) {
-    return await this.resumeService.editInfo(
-      branch,
-      dto,
-      profileImage,
-      user.id,
-    );
+    const imagePath = await this.s3Service.uploadFile([profileImage]);
+
+    dto.profileImage = (await imagePath[0]).toString();
+    return await this.resumeService.editInfo('personnel-info', dto, user.id);
   }
 
   @Guard('user')
