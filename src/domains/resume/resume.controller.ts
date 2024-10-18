@@ -80,9 +80,9 @@ export class ResumeController {
     @DAccount('user') user: User,
     @UploadedFile() profileImage?: Express.Multer.File,
   ) {
-    const imagePath = await this.s3Service.uploadFile([profileImage]);
+    const imagePath = await this.s3Service.uploadFile(profileImage);
 
-    dto.profileImage = (await imagePath[0]).toString();
+    dto.profileImage = await imagePath[0];
     return await this.resumeService.editInfo('personnel-info', dto, user.id);
   }
 

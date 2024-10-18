@@ -213,7 +213,7 @@ model Project {
   content                  String
   startDate                String
   endDate                  String?
-  repImages                String[]
+  repImages                RepImages[]
   team                     Team[]
   teamIndex                Int                   @default(0)
   skill                    Skill[]
@@ -226,6 +226,16 @@ model Project {
   troubleShootingIndex     Int                   @default(4)
   additionalPortfolio      AdditionalPortfolio[]
   additionalPortfolioIndex Int                   @default(5)
+}
+
+model RepImages {
+  id        String  @id
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  image1    String?
+  image2    String?
+  image3    String?
+  image4    String?
 }
 
 model Team {

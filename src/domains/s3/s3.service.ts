@@ -23,24 +23,24 @@ export class S3Service {
       this.configService.get('AWS_S3_BUCKET_NAME') ?? 'criends-bucket';
   }
 
-  async uploadFile(file: Express.Multer.File[]) {
-    return file.map(async (file: Express.Multer.File) => {
-      const body = file.buffer;
-      const contentType = file.originalname.split('.').pop()?.toLowerCase();
-      const key = `${nanoid()}.${contentType}`;
+  async uploadFile(file: Express.Multer.File) {
+    if (file === undefined) return undefined;
 
-      const uploadCommand = new PutObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-        Body: body,
-        ContentType: contentType,
-      });
+    const body = file.buffer;
+    const contentType = file.originalname.split('.').pop()?.toLowerCase();
+    const key = `${nanoid()}.${contentType}`;
 
-      const awsRegion = this.configService.get('AWS_REGION');
-
-      await this.s3.send(uploadCommand);
-
-      return `https://${this.bucketName}.s3.${awsRegion}.amazonaws.com/${key}`;
+    const uploadCommand = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
     });
+
+    const awsRegion = this.configService.get('AWS_REGION');
+
+    await this.s3.send(uploadCommand);
+
+    return `https://${this.bucketName}.s3.${awsRegion}.amazonaws.com/${key}`;
   }
 }

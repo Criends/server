@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { Guard } from 'src/decorators/guard.decorator';
@@ -19,16 +21,26 @@ import {
   DProjectInfo,
   DProjectOrder,
   DProjectSite,
+  DRepImages,
   DSkill,
   DTeam,
   DTroubleShooting,
 } from './portfolio.dto';
 import { User } from '../user/user.dto';
 import { ExposeRange } from '@prisma/client';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
+import { UploadPartCommand } from '@aws-sdk/client-s3';
+import { S3Service } from '../s3/s3.service';
 
 @Controller('portfolio')
 export class PortfolioController {
-  constructor(private readonly portfolioService: PortfolioService) {}
+  constructor(
+    private readonly portfolioService: PortfolioService,
+    private readonly s3Service: S3Service,
+  ) {}
 
   @Get()
   async findAllPortfolio(
@@ -52,14 +64,33 @@ export class PortfolioController {
 
   @Guard('user')
   @Patch(':projectId')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'image1' },
+      { name: 'image2' },
+      { name: 'image3' },
+      { name: 'image4' },
+    ]),
+  )
   async editProjectInfo(
-    @Param('projectId') projectId: string,
+    @UploadedFiles()
+    repImages: {
+      image1?: Express.Multer.File;
+      image2?: Express.Multer.File;
+      image3?: Express.Multer.File;
+      image4?: Express.Multer.File;
+    },
+    @Param('projectId')
+    projectId: string,
     @Body() dto: DProjectInfo,
     @DAccount('user') user: User,
   ) {
-    return await this.portfolioService.editProjectInfo(projectId, dto, user.id);
+    await this.portfolioService.editRepImages(projectId, repImages, user.id);
+    await this.portfolioService.editProjectInfo(projectId, dto, user.id);
   }
 
+  @Guard('user')
+  @Patch()
   @Guard('user')
   @Patch()
   async editProjectOrder(
