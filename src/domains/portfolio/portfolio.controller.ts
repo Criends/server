@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { Guard } from 'src/decorators/guard.decorator';
@@ -25,6 +27,7 @@ import {
 } from './portfolio.dto';
 import { User } from '../user/user.dto';
 import { ExposeRange } from '@prisma/client';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('portfolio')
 export class PortfolioController {
@@ -52,14 +55,33 @@ export class PortfolioController {
 
   @Guard('user')
   @Patch(':projectId')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'image1' },
+      { name: 'image2' },
+      { name: 'image3' },
+      { name: 'image4' },
+    ]),
+  )
   async editProjectInfo(
-    @Param('projectId') projectId: string,
+    @UploadedFiles()
+    repImages: {
+      image1?: Express.Multer.File;
+      image2?: Express.Multer.File;
+      image3?: Express.Multer.File;
+      image4?: Express.Multer.File;
+    },
+    @Param('projectId')
+    projectId: string,
     @Body() dto: DProjectInfo,
     @DAccount('user') user: User,
   ) {
-    return await this.portfolioService.editProjectInfo(projectId, dto, user.id);
+    await this.portfolioService.editRepImages(projectId, repImages, user.id);
+    await this.portfolioService.editProjectInfo(projectId, dto, user.id);
   }
 
+  @Guard('user')
+  @Patch()
   @Guard('user')
   @Patch()
   async editProjectOrder(

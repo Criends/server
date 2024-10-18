@@ -119,6 +119,13 @@ export class ResumeService {
     });
   }
 
+  async addProfileImage(image: string, userId: string) {
+    return await this.prismaService.personnelInfo.update({
+      where: { id: userId },
+      data: { profileImage: image },
+    });
+  }
+
   //이력서 초기화
   async resetResume(userId: string) {
     const target = [

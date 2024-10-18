@@ -19,10 +19,14 @@ import {
   DTeam,
   DTroubleShooting,
 } from './portfolio.dto';
+import { S3Service } from '../s3/s3.service';
 
 @Injectable()
 export class PortfolioService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly s3Service: S3Service,
+  ) {}
 
   async getAllPortfolio(data: DGetAllResumes) {
     const orderByField: object[] = [];
@@ -124,12 +128,41 @@ export class PortfolioService {
 
   async editProjectInfo(id: string, dto: DProjectInfo, userId: string) {
     if (!id.endsWith(userId))
-      throw new ForbiddenException('삭제 권한이 없습니다.');
+      throw new ForbiddenException('수정 권한이 없습니다.');
 
     await this.updateUpdatedAt(userId);
     return await this.prismaService.project.update({
       where: { id: id },
       data: { ...dto },
+    });
+  }
+
+  async editRepImages(id: string, repImages, userId: string) {
+    if (!id.endsWith(userId))
+      throw new ForbiddenException('수정 권한이 없습니다.');
+
+    const imageKeys = ['image1', 'image2', 'image3', 'image4'];
+    const list = {};
+
+    await Promise.all(
+      imageKeys.map(async (key) => {
+        const image = repImages?.[key]?.[0];
+        if (image) {
+          const path = await this.s3Service.uploadFile(image);
+          list[key] = path;
+        }
+      }),
+    );
+    return await this.prismaService.repImages.upsert({
+      where: { id },
+      create: {
+        id: id,
+        project: {
+          connect: { id: id },
+        },
+        ...list,
+      },
+      update: list,
     });
   }
 

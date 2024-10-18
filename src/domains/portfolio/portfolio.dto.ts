@@ -31,7 +31,6 @@ export class DProjectInfo {
   content?: string;
   startDate?: string;
   endDate?: string;
-  repImages?: string;
 }
 
 export class DTeam {
